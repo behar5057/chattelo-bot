@@ -6,32 +6,46 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 50px;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
         }
         .btn {
             background: white;
             color: #667eea;
             padding: 15px 30px;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 25px;
             display: inline-block;
-            margin: 10px;
+            margin: 20px 0;
             font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .feature {
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <h1>🤖 Chattelo Bot</h1>
-    <p>Random anonymous chat bot</p>
-    
-    <a href="https://t.me/ChatteloConnectBot" class="btn">
-        🚀 Start Chatting
-    </a>
-    
-    <p>✅ Find random partners</p>
-    <p>✅ Anonymous chatting</p>
-    <p>✅ Free forever</p>
+    <div class="container">
+        <h1>🤖 Chattelo Bot</h1>
+        <p>Connect with random people for anonymous chats</p>
+        
+        <a href="https://t.me/ChatteloConnectBot" class="btn">
+            🚀 Start Chatting
+        </a>
+        
+        <div class="features">
+            <div class="feature">✅ Find random partners</div>
+            <div class="feature">✅ 100% anonymous</div>
+            <div class="feature">✅ Easy to use buttons</div>
+            <div class="feature">✅ Free forever</div>
+        </div>
+    </div>
 </body>
 </html>
