@@ -1,51 +1,377 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Chattelo Chat Bot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chattelo - Random Video Chat</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 50px;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 400px;
             margin: 0 auto;
+            padding: 20px;
+            text-align: center;
         }
+
+        .logo {
+            font-size: 80px;
+            margin: 30px 0 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
         .btn {
-            background: white;
-            color: #667eea;
-            padding: 15px 30px;
+            display: block;
+            width: 100%;
+            padding: 18px;
+            margin: 15px 0;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-decoration: none;
-            border-radius: 25px;
-            display: inline-block;
-            margin: 20px 0;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
         }
+
+        .btn-primary {
+            background: #ff6b6b;
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 30px 0;
+            backdrop-filter: blur(10px);
+        }
+
         .feature {
-            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            width: 30px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .online-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4cd964;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Chat Interface */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+            color: #333;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .video-container {
+            flex: 1;
+            background: #000;
+            position: relative;
+        }
+
+        .local-video, .remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 120px;
+            height: 160px;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+
+        .chat-controls {
+            padding: 20px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .end-call {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .mute-audio, .mute-video {
+            background: #f8f9fa;
+            color: #666;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🤖 Chattelo Bot</h1>
-        <p>Connect with random people for anonymous chats</p>
-        
-        <a href="https://t.me/ChatteloConnectBot" class="btn">
-            🚀 Start Chatting
-        </a>
-        
+    <!-- Main Landing Page -->
+    <div class="container" id="landingPage">
+        <div class="logo">🎥</div>
+        <h1>Chattelo</h1>
+        <p class="tagline">Random Video Chat with Strangers</p>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-number" id="onlineCount">1.2K</span>
+                <span class="stat-label"><span class="online-indicator"></span>ONLINE</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="totalChats">50K+</span>
+                <span class="stat-label">CHATS TODAY</span>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="startChat()">
+            🚀 START RANDOM CHAT
+        </button>
+
+        <button class="btn btn-secondary" onclick="openTelegram()">
+            🤖 OPEN TELEGRAM BOT
+        </button>
+
         <div class="features">
-            <div class="feature">✅ Find random partners</div>
-            <div class="feature">✅ 100% anonymous</div>
-            <div class="feature">✅ Easy to use buttons</div>
-            <div class="feature">✅ Free forever</div>
+            <div class="feature">
+                <span class="feature-icon">🔒</span>
+                <span>100% Anonymous - No registration required</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🌎</span>
+                <span>Connect with people worldwide instantly</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎭</span>
+                <span>Gender filter and interest matching</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">⚡</span>
+                <span>Fast matching - Find partners in seconds</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            By using Chattelo, you agree to our Terms and Privacy Policy
         </div>
     </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-container" id="chatPage">
+        <div class="chat-header">
+            <button class="back-btn" onclick="showLandingPage()">←</button>
+            <h3>Connected with Stranger</h3>
+            <div>Time: <span id="chatTimer">00:00</span></div>
+        </div>
+        
+        <div class="video-container">
+            <video class="remote-video" id="remoteVideo" autoplay muted></video>
+            <video class="local-video" id="localVideo" autoplay muted></video>
+        </div>
+        
+        <div class="chat-controls">
+            <button class="control-btn mute-audio" onclick="toggleAudio()">🎤</button>
+            <button class="control-btn mute-video" onclick="toggleVideo()">📹</button>
+            <button class="control-btn end-call" onclick="endChat()">📞</button>
+        </div>
+    </div>
+
+    <script>
+        // Update random stats
+        function updateStats() {
+            const online = Math.floor(Math.random() * 500) + 1000;
+            const chats = Math.floor(Math.random() * 10000) + 50000;
+            document.getElementById('onlineCount').textContent = (online / 1000).toFixed(1) + 'K';
+            document.getElementById('totalChats').textContent = (chats / 1000).toFixed(0) + 'K+';
+        }
+
+        // Start chat function
+        function startChat() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('chatPage').style.display = 'flex';
+            
+            // Simulate searching for partner
+            setTimeout(() => {
+                alert('Partner found! Starting video chat...');
+                startTimer();
+            }, 2000);
+        }
+
+        // Show landing page
+        function showLandingPage() {
+            document.getElementById('landingPage').style.display = 'block';
+            document.getElementById('chatPage').style.display = 'none';
+            resetTimer();
+        }
+
+        // Open Telegram bot
+        function openTelegram() {
+            window.open('https://t.me/ChatteloConnectBot', '_blank');
+        }
+
+        // Chat timer
+        let chatTimer;
+        let seconds = 0;
+        
+        function startTimer() {
+            chatTimer = setInterval(() => {
+                seconds++;
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                document.getElementById('chatTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+        
+        function resetTimer() {
+            clearInterval(chatTimer);
+            seconds = 0;
+            document.getElementById('chatTimer').textContent = '00:00';
+        }
+
+        // Control functions
+        function toggleAudio() {
+            alert('Audio toggled');
+        }
+        
+        function toggleVideo() {
+            alert('Video toggled');
+        }
+        
+        function endChat() {
+            if (confirm('End this chat?')) {
+                showLandingPage();
+                alert('Chat ended. Finding new partner...');
+            }
+        }
+
+        // Initialize
+        updateStats();
+        setInterval(updateStats, 5000); // Update stats every 5 seconds
+    </script>
 </body>
 </html>
