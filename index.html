@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chattelo - Random Video Chat</title>
+    <title>Chattelo - Random Video & Text Chat</title>
     <style>
         * {
             margin: 0;
@@ -76,12 +76,24 @@
         }
 
         .btn-secondary {
+            background: #4cd964;
+            color: white;
+            box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #44c554;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4);
+        }
+
+        .btn-tertiary {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        .btn-secondary:hover {
+        .btn-tertiary:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
@@ -151,7 +163,7 @@
             opacity: 0.7;
         }
 
-        /* Chat Interface */
+        /* Chat Interfaces */
         .chat-container {
             display: none;
             flex-direction: column;
@@ -178,6 +190,7 @@
             cursor: pointer;
         }
 
+        /* Video Chat */
         .video-container {
             flex: 1;
             background: #000;
@@ -198,6 +211,73 @@
             height: 160px;
             border-radius: 10px;
             border: 2px solid white;
+        }
+
+        /* Text Chat */
+        .text-chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.received {
+            background: #e5e5ea;
+            color: #000;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent {
+            background: #007aff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e5ea;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .send-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            cursor: pointer;
         }
 
         .chat-controls {
@@ -233,9 +313,9 @@
 <body>
     <!-- Main Landing Page -->
     <div class="container" id="landingPage">
-        <div class="logo">🎥</div>
+        <div class="logo">💬</div>
         <h1>Chattelo</h1>
-        <p class="tagline">Random Video Chat with Strangers</p>
+        <p class="tagline">Random Video & Text Chat with Strangers</p>
 
         <div class="stats">
             <div class="stat">
@@ -248,11 +328,15 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="startChat()">
-            🚀 START RANDOM CHAT
+        <button class="btn btn-primary" onclick="startVideoChat()">
+            🎥 START VIDEO CHAT
         </button>
 
-        <button class="btn btn-secondary" onclick="openTelegram()">
+        <button class="btn btn-secondary" onclick="startTextChat()">
+            💬 START TEXT CHAT
+        </button>
+
+        <button class="btn btn-tertiary" onclick="openTelegram()">
             🤖 OPEN TELEGRAM BOT
         </button>
 
@@ -266,8 +350,8 @@
                 <span>Connect with people worldwide instantly</span>
             </div>
             <div class="feature">
-                <span class="feature-icon">🎭</span>
-                <span>Gender filter and interest matching</span>
+                <span class="feature-icon">💬</span>
+                <span>Text chat & Video chat available</span>
             </div>
             <div class="feature">
                 <span class="feature-icon">⚡</span>
@@ -280,12 +364,12 @@
         </div>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="chat-container" id="chatPage">
+    <!-- Video Chat Interface -->
+    <div class="chat-container" id="videoChatPage">
         <div class="chat-header">
             <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Connected with Stranger</h3>
-            <div>Time: <span id="chatTimer">00:00</span></div>
+            <h3>Video Chat with Stranger</h3>
+            <div>Time: <span id="videoChatTimer">00:00</span></div>
         </div>
         
         <div class="video-container">
@@ -300,7 +384,47 @@
         </div>
     </div>
 
+    <!-- Text Chat Interface -->
+    <div class="chat-container" id="textChatPage">
+        <div class="chat-header">
+            <button class="back-btn" onclick="showLandingPage()">←</button>
+            <h3>Text Chat with Stranger</h3>
+            <div>Time: <span id="textChatTimer">00:00</span></div>
+        </div>
+        
+        <div class="text-chat-container">
+            <div class="messages-container" id="messagesContainer">
+                <!-- Messages will appear here -->
+                <div class="message received">
+                    Hello! How are you today?
+                </div>
+                <div class="message sent">
+                    I'm good! Nice to meet you 😊
+                </div>
+                <div class="message received">
+                    Want to chat for a while?
+                </div>
+            </div>
+            
+            <div class="message-input-container">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                <button class="send-btn" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Chat state
+        let currentChatType = null;
+        let chatTimers = {
+            video: null,
+            text: null
+        };
+        let chatSeconds = {
+            video: 0,
+            text: 0
+        };
+
         // Update random stats
         function updateStats() {
             const online = Math.floor(Math.random() * 500) + 1000;
@@ -309,23 +433,36 @@
             document.getElementById('totalChats').textContent = (chats / 1000).toFixed(0) + 'K+';
         }
 
-        // Start chat function
-        function startChat() {
+        // Start video chat
+        function startVideoChat() {
+            currentChatType = 'video';
             document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('chatPage').style.display = 'flex';
+            document.getElementById('videoChatPage').style.display = 'flex';
             
-            // Simulate searching for partner
             setTimeout(() => {
-                alert('Partner found! Starting video chat...');
-                startTimer();
+                alert('Video partner found! Starting video chat...');
+                startTimer('video');
             }, 2000);
+        }
+
+        // Start text chat
+        function startTextChat() {
+            currentChatType = 'text';
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('textChatPage').style.display = 'flex';
+            
+            setTimeout(() => {
+                addMessage('received', 'Hello! Nice to meet you! 😊');
+                startTimer('text');
+            }, 1500);
         }
 
         // Show landing page
         function showLandingPage() {
             document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('chatPage').style.display = 'none';
-            resetTimer();
+            document.getElementById('videoChatPage').style.display = 'none';
+            document.getElementById('textChatPage').style.display = 'none';
+            resetAllTimers();
         }
 
         // Open Telegram bot
@@ -333,24 +470,63 @@
             window.open('https://t.me/ChatteloConnectBot', '_blank');
         }
 
-        // Chat timer
-        let chatTimer;
-        let seconds = 0;
-        
-        function startTimer() {
-            chatTimer = setInterval(() => {
-                seconds++;
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                document.getElementById('chatTimer').textContent = 
+        // Chat timer functions
+        function startTimer(type) {
+            chatTimers[type] = setInterval(() => {
+                chatSeconds[type]++;
+                const minutes = Math.floor(chatSeconds[type] / 60);
+                const remainingSeconds = chatSeconds[type] % 60;
+                document.getElementById(type + 'ChatTimer').textContent = 
                     `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
         
-        function resetTimer() {
-            clearInterval(chatTimer);
-            seconds = 0;
-            document.getElementById('chatTimer').textContent = '00:00';
+        function resetAllTimers() {
+            Object.values(chatTimers).forEach(timer => clearInterval(timer));
+            chatSeconds.video = 0;
+            chatSeconds.text = 0;
+            document.getElementById('videoChatTimer').textContent = '00:00';
+            document.getElementById('textChatTimer').textContent = '00:00';
+        }
+
+        // Text chat functions
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('sent', message);
+                input.value = '';
+                
+                // Simulate partner reply after 1-3 seconds
+                setTimeout(() => {
+                    const replies = [
+                        "That's interesting! Tell me more.",
+                        "I agree with you!",
+                        "Haha that's funny 😄",
+                        "What do you think about this?",
+                        "Nice talking with you!",
+                        "Want to chat about something else?"
+                    ];
+                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                    addMessage('received', randomReply);
+                }, 1000 + Math.random() * 2000);
+            }
+        }
+
+        function addMessage(type, text) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
         }
 
         // Control functions
@@ -371,7 +547,7 @@
 
         // Initialize
         updateStats();
-        setInterval(updateStats, 5000); // Update stats every 5 seconds
+        setInterval(updateStats, 5000);
     </script>
 </body>
 </html>
