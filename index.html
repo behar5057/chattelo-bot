@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chattelo - Random Video & Text Chat</title>
+    <title>Chattelo - Random Anonymous Chat</title>
     <style>
         * {
             margin: 0;
@@ -218,7 +218,7 @@
     <div class="container" id="landingPage">
         <div class="logo">💬</div>
         <h1>Chattelo</h1>
-        <p class="tagline">Chat with Strangers Randomly - Like Omegle</p>
+        <p class="tagline">Random anonymous chat bot</p>
 
         <button class="btn btn-secondary" onclick="startTextChat()">
             💬 START TEXT CHAT
@@ -235,9 +235,9 @@
         <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h3>🚀 How it works:</h3>
             <p style="margin: 10px 0; font-size: 14px;">1. Click TEXT or VIDEO chat</p>
-            <p style="margin: 10px 0; font-size: 14px;">2. Get connected with a random stranger</p>
+            <p style="margin: 10px 0; font-size: 14px;">2. Get connected randomly</p>
             <p style="margin: 10px 0; font-size: 14px;">3. Chat about anything you want!</p>
-            <p style="margin: 10px 0; font-size: 14px;">4. No pre-written messages - REAL chatting</p>
+            <p style="margin: 10px 0; font-size: 14px;">4. No pre-written messages</p>
         </div>
     </div>
 
@@ -245,7 +245,7 @@
     <div class="chat-container" id="textChatPage">
         <div class="chat-header">
             <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Chatting with Stranger</h3>
+            <h3>Anonymous Chat</h3>
             <div>Time: <span id="textChatTimer">00:00</span></div>
         </div>
         
@@ -253,8 +253,8 @@
             <div class="messages-container" id="messagesContainer">
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
-                    <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                    <p>Looking for connection...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected randomly soon!</p>
                 </div>
             </div>
             
@@ -278,8 +278,8 @@
             document.getElementById('messagesContainer').innerHTML = `
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
-                    <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                    <p>Looking for connection...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected randomly soon!</p>
                 </div>
             `;
             
@@ -287,25 +287,24 @@
             document.getElementById('messageInput').disabled = true;
             document.querySelector('.send-btn').disabled = true;
             
-            // Simulate connecting to a stranger (3-6 seconds)
+            // Simulate connecting (3-6 seconds)
             setTimeout(() => {
-                connectToStranger();
+                connectToChat();
             }, 3000 + Math.random() * 3000);
         }
 
         function startVideoChat() {
-            alert("🎥 Video chat feature coming soon!\nFor now, enjoy the text chat with real people!");
-            // You can add video chat implementation here later
+            alert("🎥 Video chat feature coming soon!\nFor now, enjoy the text chat!");
         }
 
-        function connectToStranger() {
+        function connectToChat() {
             isConnected = true;
             document.getElementById('waitingMessage').style.display = 'none';
             document.getElementById('messageInput').disabled = false;
             document.querySelector('.send-btn').disabled = false;
             
             // Add connection message
-            addMessage('received', "Stranger connected! Say hello! 👋");
+            addMessage('received', "Connected! Start chatting! 👋");
             startTimer();
         }
 
@@ -344,9 +343,6 @@
             if (message) {
                 addMessage('sent', message);
                 input.value = '';
-                
-                // In a real app, this would send to another user
-                // For demo, we'll just show the message was sent
             }
         }
 
