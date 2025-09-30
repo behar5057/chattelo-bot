@@ -163,7 +163,7 @@
             opacity: 0.7;
         }
 
-        /* Chat Interfaces */
+        /* Text Chat Interface */
         .chat-container {
             display: none;
             flex-direction: column;
@@ -190,30 +190,6 @@
             cursor: pointer;
         }
 
-        /* Video Chat */
-        .video-container {
-            flex: 1;
-            background: #000;
-            position: relative;
-        }
-
-        .local-video, .remote-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .local-video {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 160px;
-            border-radius: 10px;
-            border: 2px solid white;
-        }
-
-        /* Text Chat */
         .text-chat-container {
             flex: 1;
             display: flex;
@@ -280,33 +256,15 @@
             cursor: pointer;
         }
 
-        .chat-controls {
-            padding: 20px;
-            background: white;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .control-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .end-call {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        .mute-audio, .mute-video {
-            background: #f8f9fa;
+        .typing-indicator {
+            background: #e5e5ea;
             color: #666;
+            padding: 8px 16px;
+            border-radius: 18px;
+            align-self: flex-start;
+            font-size: 12px;
+            font-style: italic;
+            display: none;
         }
     </style>
 </head>
@@ -315,12 +273,12 @@
     <div class="container" id="landingPage">
         <div class="logo">💬</div>
         <h1>Chattelo</h1>
-        <p class="tagline">Random Video & Text Chat with Strangers</p>
+        <p class="tagline">Chat with Real People Randomly</p>
 
         <div class="stats">
             <div class="stat">
                 <span class="stat-number" id="onlineCount">1.2K</span>
-                <span class="stat-label"><span class="online-indicator"></span>ONLINE</span>
+                <span class="stat-label"><span class="online-indicator"></span>REAL PEOPLE</span>
             </div>
             <div class="stat">
                 <span class="stat-number" id="totalChats">50K+</span>
@@ -328,12 +286,8 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="startVideoChat()">
-            🎥 START VIDEO CHAT
-        </button>
-
         <button class="btn btn-secondary" onclick="startTextChat()">
-            💬 START TEXT CHAT
+            💬 CHAT WITH REAL PERSON
         </button>
 
         <button class="btn btn-tertiary" onclick="openTelegram()">
@@ -342,45 +296,25 @@
 
         <div class="features">
             <div class="feature">
+                <span class="feature-icon">👥</span>
+                <span>Chat with real people from around the world</span>
+            </div>
+            <div class="feature">
                 <span class="feature-icon">🔒</span>
-                <span>100% Anonymous - No registration required</span>
-            </div>
-            <div class="feature">
-                <span class="feature-icon">🌎</span>
-                <span>Connect with people worldwide instantly</span>
-            </div>
-            <div class="feature">
-                <span class="feature-icon">💬</span>
-                <span>Text chat & Video chat available</span>
+                <span>100% Anonymous - No personal info shared</span>
             </div>
             <div class="feature">
                 <span class="feature-icon">⚡</span>
-                <span>Fast matching - Find partners in seconds</span>
+                <span>Instant connection with interesting people</span>
+            </div>
+            <div class="feature">
+                <span class="feature-icon">🎯</span>
+                <span>Random matching based on common interests</span>
             </div>
         </div>
 
         <div class="footer">
-            By using Chattelo, you agree to our Terms and Privacy Policy
-        </div>
-    </div>
-
-    <!-- Video Chat Interface -->
-    <div class="chat-container" id="videoChatPage">
-        <div class="chat-header">
-            <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Video Chat with Stranger</h3>
-            <div>Time: <span id="videoChatTimer">00:00</span></div>
-        </div>
-        
-        <div class="video-container">
-            <video class="remote-video" id="remoteVideo" autoplay muted></video>
-            <video class="local-video" id="localVideo" autoplay muted></video>
-        </div>
-        
-        <div class="chat-controls">
-            <button class="control-btn mute-audio" onclick="toggleAudio()">🎤</button>
-            <button class="control-btn mute-video" onclick="toggleVideo()">📹</button>
-            <button class="control-btn end-call" onclick="endChat()">📞</button>
+            Connect with real people instantly. Be respectful and have fun!
         </div>
     </div>
 
@@ -388,22 +322,17 @@
     <div class="chat-container" id="textChatPage">
         <div class="chat-header">
             <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Text Chat with Stranger</h3>
+            <h3>Chatting with Stranger</h3>
             <div>Time: <span id="textChatTimer">00:00</span></div>
         </div>
         
         <div class="text-chat-container">
             <div class="messages-container" id="messagesContainer">
                 <!-- Messages will appear here -->
-                <div class="message received">
-                    Hello! How are you today?
-                </div>
-                <div class="message sent">
-                    I'm good! Nice to meet you 😊
-                </div>
-                <div class="message received">
-                    Want to chat for a while?
-                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Stranger is typing...
             </div>
             
             <div class="message-input-container">
@@ -414,16 +343,91 @@
     </div>
 
     <script>
+        // Real conversation scenarios
+        const conversationScenarios = [
+            {
+                name: "Travel Conversation",
+                messages: [
+                    "Hey there! How's your day going?",
+                    "Pretty good! Just got back from a walk. The weather is nice today ☀️",
+                    "Oh nice! Where do you like to go for walks?",
+                    "There's a park near my place with a lake. Very peaceful 🦆",
+                    "That sounds amazing! I love being near water. Do you travel much?",
+                    "I try to! Last year I visited Japan - absolutely incredible 🗾",
+                    "Wow Japan is on my bucket list! What was your favorite part?",
+                    "Definitely the food! And the bullet trains are so futuristic 🚄",
+                    "I'm jealous! I really want to try authentic ramen 🍜",
+                    "You should go! The culture is so different but amazing"
+                ]
+            },
+            {
+                name: "Music Conversation", 
+                messages: [
+                    "Hi! Found someone to chat with 😊",
+                    "Hey! Nice to meet you. What kind of music are you into?",
+                    "I listen to everything but mostly indie and alternative 🎵",
+                    "Cool! I've been getting into indie recently. Any recommendations?",
+                    "You should check out Arctic Monkeys and Tame Impala!",
+                    "Oh I love Tame Impala! The Less I Know the Better is my jam 🎸",
+                    "Yesss that song is iconic! Their whole Currents album is perfect",
+                    "What about concerts? Been to any good shows lately?",
+                    "Saw Coldplay last month - incredible production! 🎤",
+                    "Lucky! I've always wanted to see them live"
+                ]
+            },
+            {
+                name: "Movie Conversation",
+                messages: [
+                    "Hello! How's it going?",
+                    "Hey! Just finished work, relaxing now. You?",
+                    "Same here! Watching some Netflix to unwind 🍿",
+                    "Nice! What are you watching? I need new recommendations",
+                    "Just started Stranger Things - never seen it before!",
+                    "No way! You're in for a treat. The 80s vibe is so cool 📺",
+                    "I'm loving it so far! The kids are great actors",
+                    "Wait until you meet Steve - best character development ever!",
+                    "Now I'm excited! What other shows do you like?",
+                    "Big fan of Black Mirror and The Crown. Very different vibes though! 👑"
+                ]
+            },
+            {
+                name: "Food Conversation",
+                messages: [
+                    "Hey! Hope you're having a good day 🎉",
+                    "Hi there! Just thinking about what to cook for dinner 🍳",
+                    "Haha same struggle every day! What's your favorite cuisine?",
+                    "I love Italian food! Can't go wrong with pasta 🍝",
+                    "Yum! Homemade pasta or restaurant?",
+                    "Both! But there's a little Italian place near me that's amazing",
+                    "I'm jealous! The best Italian I had was in Rome last year",
+                    "Oh wow authentic Italian in Italy! What did you try?",
+                    "Carbonara the Roman way - so different but delicious! 🥓",
+                    "Now I'm hungry! Maybe I'll make pasta tonight 😋"
+                ]
+            },
+            {
+                name: "Hobby Conversation",
+                messages: [
+                    "Hello! Nice to randomly meet you 👋",
+                    "Hey! Always fun to chat with new people. What do you do for fun?",
+                    "I love photography! Mostly nature and street photos 📸",
+                    "That's awesome! Do you share your photos anywhere?",
+                    "Just on Instagram for friends. It's more of a hobby than serious",
+                    "Still cool! I tried photography but I'm better at appreciating art 🎨",
+                    "What kind of art do you like?",
+                    "Big fan of impressionism. Monet and Van Gogh speak to my soul 🌻",
+                    "Beautiful choices! The Starry Night is probably my favorite painting",
+                    "Mine too! The colors and emotion are just incredible ✨"
+                ]
+            }
+        ];
+
         // Chat state
-        let currentChatType = null;
-        let chatTimers = {
-            video: null,
-            text: null
-        };
-        let chatSeconds = {
-            video: 0,
-            text: 0
-        };
+        let currentScenario = null;
+        let chatTimer = null;
+        let chatSeconds = 0;
+        let scenarioMessageIndex = 0;
+        let userMessageCount = 0;
 
         // Update random stats
         function updateStats() {
@@ -433,36 +437,36 @@
             document.getElementById('totalChats').textContent = (chats / 1000).toFixed(0) + 'K+';
         }
 
-        // Start video chat
-        function startVideoChat() {
-            currentChatType = 'video';
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('videoChatPage').style.display = 'flex';
-            
-            setTimeout(() => {
-                alert('Video partner found! Starting video chat...');
-                startTimer('video');
-            }, 2000);
-        }
-
-        // Start text chat
+        // Start text chat with real conversation
         function startTextChat() {
-            currentChatType = 'text';
+            // Pick a random conversation scenario
+            currentScenario = conversationScenarios[Math.floor(Math.random() * conversationScenarios.length)];
+            scenarioMessageIndex = 0;
+            userMessageCount = 0;
+            
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'flex';
             
+            // Clear previous messages
+            document.getElementById('messagesContainer').innerHTML = '';
+            
+            // Start the conversation naturally
             setTimeout(() => {
-                addMessage('received', 'Hello! Nice to meet you! 😊');
-                startTimer('text');
+                showTypingIndicator();
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage('received', currentScenario.messages[scenarioMessageIndex]);
+                    scenarioMessageIndex++;
+                    startTimer();
+                }, 2000);
             }, 1500);
         }
 
         // Show landing page
         function showLandingPage() {
             document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('videoChatPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'none';
-            resetAllTimers();
+            resetTimer();
         }
 
         // Open Telegram bot
@@ -470,22 +474,20 @@
             window.open('https://t.me/ChatteloConnectBot', '_blank');
         }
 
-        // Chat timer functions
-        function startTimer(type) {
-            chatTimers[type] = setInterval(() => {
-                chatSeconds[type]++;
-                const minutes = Math.floor(chatSeconds[type] / 60);
-                const remainingSeconds = chatSeconds[type] % 60;
-                document.getElementById(type + 'ChatTimer').textContent = 
+        // Chat timer
+        function startTimer() {
+            chatTimer = setInterval(() => {
+                chatSeconds++;
+                const minutes = Math.floor(chatSeconds / 60);
+                const remainingSeconds = chatSeconds % 60;
+                document.getElementById('textChatTimer').textContent = 
                     `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
         
-        function resetAllTimers() {
-            Object.values(chatTimers).forEach(timer => clearInterval(timer));
-            chatSeconds.video = 0;
-            chatSeconds.text = 0;
-            document.getElementById('videoChatTimer').textContent = '00:00';
+        function resetTimer() {
+            clearInterval(chatTimer);
+            chatSeconds = 0;
             document.getElementById('textChatTimer').textContent = '00:00';
         }
 
@@ -497,20 +499,37 @@
             if (message) {
                 addMessage('sent', message);
                 input.value = '';
+                userMessageCount++;
                 
-                // Simulate partner reply after 1-3 seconds
+                // Show typing indicator before partner replies
+                showTypingIndicator();
+                
+                // Partner replies after realistic delay (2-4 seconds)
                 setTimeout(() => {
-                    const replies = [
-                        "That's interesting! Tell me more.",
-                        "I agree with you!",
-                        "Haha that's funny 😄",
-                        "What do you think about this?",
-                        "Nice talking with you!",
-                        "Want to chat about something else?"
-                    ];
-                    const randomReply = replies[Math.floor(Math.random() * replies.length)];
-                    addMessage('received', randomReply);
-                }, 1000 + Math.random() * 2000);
+                    hideTypingIndicator();
+                    
+                    if (scenarioMessageIndex < currentScenario.messages.length) {
+                        // Continue with scenario conversation
+                        addMessage('received', currentScenario.messages[scenarioMessageIndex]);
+                        scenarioMessageIndex++;
+                    } else {
+                        // After scenario ends, generate natural responses
+                        const naturalResponses = [
+                            "That's really interesting! Tell me more about that",
+                            "I never thought about it that way!",
+                            "Haha you're funny! 😄 What else do you like to do?",
+                            "That's cool! We have similar interests it seems",
+                            "I'm enjoying this conversation! How's your day been?",
+                            "You seem like a really interesting person!",
+                            "What's the most exciting thing you've done recently?",
+                            "I love meeting new people from different places!",
+                            "This is nice! Do you chat with strangers often?",
+                            "You have a great perspective on things! 🌟"
+                        ];
+                        const randomReply = naturalResponses[Math.floor(Math.random() * naturalResponses.length)];
+                        addMessage('received', randomReply);
+                    }
+                }, 2000 + Math.random() * 2000);
             }
         }
 
@@ -523,25 +542,19 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMessage();
-            }
-        }
-
-        // Control functions
-        function toggleAudio() {
-            alert('Audio toggled');
-        }
-        
-        function toggleVideo() {
-            alert('Video toggled');
-        }
-        
-        function endChat() {
-            if (confirm('End this chat?')) {
-                showLandingPage();
-                alert('Chat ended. Finding new partner...');
             }
         }
 
