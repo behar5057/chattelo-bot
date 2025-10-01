@@ -101,16 +101,15 @@
             transform: rotate(15deg);
         }
 
-        .btn-telegram {
-            background: #0088cc;
+        .btn-crypto {
+            background: linear-gradient(135deg, #f7931a, #8b5cf6);
             color: white;
-            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.3);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
         }
 
-        .btn-telegram:hover {
-            background: #0077b3;
+        .btn-crypto:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(0, 136, 204, 0.4);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
         }
 
         .pricing-card {
@@ -131,7 +130,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .stars-price {
+        .crypto-price {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -139,9 +138,8 @@
             margin: 15px 0;
         }
 
-        .star-icon {
+        .crypto-icon {
             font-size: 24px;
-            color: #FFD700;
         }
 
         .features-list {
@@ -194,12 +192,70 @@
             color: #666;
         }
 
-        .telegram-payment {
+        .crypto-payment {
             background: #f8f9fa;
             padding: 20px;
             border-radius: 15px;
             margin: 20px 0;
-            border: 2px solid #0088cc;
+            border: 2px solid #8b5cf6;
+        }
+
+        .wallet-address {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 1px solid #e5e5ea;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px solid #e5e5ea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option.selected {
+            border-color: #8b5cf6;
+            background: #f0f8ff;
+        }
+
+        .payment-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .payment-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .payment-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .payment-desc {
+            font-size: 12px;
+            color: #666;
         }
     </style>
 </head>
@@ -219,18 +275,14 @@
             <div class="premium-badge">PRO</div>
         </button>
 
-        <button class="btn btn-telegram" onclick="openTelegramBot()">
-            🤖 OPEN TELEGRAM BOT
-        </button>
-
         <!-- Pricing Card -->
         <div class="pricing-card">
             <h3>🎥 Premium Video Chat</h3>
-            <div class="stars-price">
-                <span class="star-icon">⭐</span>
-                <div class="price">149 Stars</div>
+            <div class="crypto-price">
+                <span class="crypto-icon">₿</span>
+                <div class="price">$4.99</div>
             </div>
-            <p style="font-size: 14px; opacity: 0.8;">Real payment required</p>
+            <p style="font-size: 14px; opacity: 0.8;">Pay with Crypto - Works Worldwide</p>
             
             <div class="features-list">
                 <div class="feature-item">
@@ -245,19 +297,23 @@
                     <span class="feature-icon">✅</span>
                     <span>Priority Matching</span>
                 </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>Unlimited Time</span>
+                </div>
             </div>
             
-            <button class="btn btn-telegram" onclick="showPremiumModal()" style="margin-top: 15px;">
-                💫 UNLOCK WITH STARS
+            <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
+                ₿ PAY WITH CRYPTO
             </button>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>💰 How it works:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">1. Click PREMIUM button</p>
-            <p style="margin: 8px 0; font-size: 14px;">2. Pay 149 Stars in Telegram</p>
-            <p style="margin: 8px 0; font-size: 14px;">3. Money comes to our wallet</p>
-            <p style="margin: 8px 0; font-size: 14px;">4. Get instant access</p>
+            <h4>💰 Accepting:</h4>
+            <p style="margin: 8px 0; font-size: 14px;">• USDT (TRC20)</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Bitcoin (BTC)</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH)</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Works in ALL countries</p>
         </div>
     </div>
 
@@ -265,45 +321,76 @@
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
-            <h2>🔒 Payment Required</h2>
-            <p style="margin: 15px 0; color: #666;">You need to pay to access video chat</p>
+            <h2>₿ Crypto Payment</h2>
+            <p style="margin: 15px 0; color: #666;">Pay $4.99 with cryptocurrency</p>
             
-            <div class="telegram-payment">
-                <div class="stars-price">
-                    <span class="star-icon">⭐</span>
-                    <div class="price">149 Stars</div>
+            <div class="crypto-payment">
+                <div class="crypto-price">
+                    <span class="crypto-icon">₿</span>
+                    <div class="price">$4.99</div>
                 </div>
-                <p style="font-size: 14px; color: #666; margin: 10px 0;">Real payment • No trial</p>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
             </div>
-            
-            <div style="text-align: left; margin: 20px 0;">
-                <div class="feature-item">
-                    <span class="feature-icon">🔒</span>
-                    <span>HD Video Calls <strong>(PAY TO UNLOCK)</strong></span>
+
+            <!-- Payment Options -->
+            <div class="payment-option selected" onclick="selectPayment('usdt')" id="usdtOption">
+                <div class="payment-icon">💎</div>
+                <div class="payment-info">
+                    <div class="payment-title">USDT (TRC20)</div>
+                    <div class="payment-desc">Recommended - Fast & Low fees</div>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🔒</span>
-                    <span>Ad-Free <strong>(PAY TO UNLOCK)</strong></span>
+                <div style="font-weight: bold;">$4.99</div>
+            </div>
+
+            <div class="payment-option" onclick="selectPayment('btc')" id="btcOption">
+                <div class="payment-icon">₿</div>
+                <div class="payment-info">
+                    <div class="payment-title">Bitcoin (BTC)</div>
+                    <div class="payment-desc">Original cryptocurrency</div>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🔒</span>
-                    <span>Priority Matching <strong>(PAY TO UNLOCK)</strong></span>
+                <div style="font-weight: bold;">$4.99</div>
+            </div>
+
+            <div class="payment-option" onclick="selectPayment('eth')" id="ethOption">
+                <div class="payment-icon">🔷</div>
+                <div class="payment-info">
+                    <div class="payment-title">Ethereum (ETH)</div>
+                    <div class="payment-desc">Smart contract platform</div>
+                </div>
+                <div style="font-weight: bold;">$4.99</div>
+            </div>
+
+            <!-- Wallet Address -->
+            <div id="paymentDetails">
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4>📥 Send USDT to:</h4>
+                    <div class="wallet-address" id="walletAddress">
+                        TY76gV8s9s4Kj3hG5dF2rT6yH8jK1lP0qW
+                    </div>
+                    <button class="copy-btn" onclick="copyWalletAddress()">
+                        📋 Copy Address
+                    </button>
+                    
+                    <div style="margin-top: 15px; font-size: 12px; color: #666;">
+                        <p>🔹 Network: <strong>TRC20</strong></p>
+                        <p>🔹 Amount: <strong>$4.99 USDT</strong></p>
+                        <p>🔹 Send exact amount only</p>
+                    </div>
                 </div>
             </div>
 
             <!-- Payment Instructions -->
             <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
-                <h4 style="margin: 0 0 10px 0;">📱 Payment Steps:</h4>
-                <p style="margin: 5px 0; font-size: 14px;">1. Click "PAY IN TELEGRAM" below</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Our bot will open in Telegram</p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Use /premium command</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Pay 149 Stars from your wallet</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. Money comes to OUR wallet</p>
-                <p style="margin: 5px 0; font-size: 14px;">6. Return here with access!</p>
+                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
             </div>
             
-            <button class="btn btn-telegram" style="width: 100%; margin: 10px 0;" onclick="redirectToTelegramPayment()">
-                💫 PAY 149 STARS IN TELEGRAM
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0;" onclick="completePayment()">
+                💎 I HAVE PAID - ACTIVATE ACCESS
             </button>
             
             <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
@@ -311,37 +398,94 @@
             </button>
             
             <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                🔒 No access without real payment
+                🔒 Manual verification • Contact us after payment
             </p>
         </div>
     </div>
 
     <script>
+        let selectedPayment = 'usdt';
+        const walletAddresses = {
+            usdt: 'TY76gV8s9s4Kj3hG5dF2rT6yH8jK1lP0qW',
+            btc: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+            eth: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+        };
+
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
+            updatePaymentDetails();
         }
 
         function closePremiumModal() {
             document.getElementById('premiumModal').style.display = 'none';
         }
 
-        function redirectToTelegramPayment() {
-            // This opens YOUR Telegram bot where people will REALLY pay
-            window.open('https://t.me/ChatteloConnectBot?start=premium_payment', '_blank');
+        function selectPayment(method) {
+            selectedPayment = method;
             
-            alert("💰 Opening Telegram...\n\nPlease complete the payment of 149 Stars in our bot.\n\nThe money will come directly to our wallet!");
+            // Update UI
+            document.getElementById('usdtOption').classList.remove('selected');
+            document.getElementById('btcOption').classList.remove('selected');
+            document.getElementById('ethOption').classList.remove('selected');
             
-            closePremiumModal();
+            document.getElementById(method + 'Option').classList.add('selected');
+            updatePaymentDetails();
         }
 
-        function openTelegramBot() {
-            window.open('https://t.me/ChatteloConnectBot', '_blank');
+        function updatePaymentDetails() {
+            const address = walletAddresses[selectedPayment];
+            document.getElementById('walletAddress').textContent = address;
+            
+            // Update instructions based on selected crypto
+            let networkInfo = '';
+            if (selectedPayment === 'usdt') {
+                networkInfo = 'TRC20 network';
+            } else if (selectedPayment === 'btc') {
+                networkInfo = 'Bitcoin network';
+            } else if (selectedPayment === 'eth') {
+                networkInfo = 'Ethereum network (ERC20)';
+            }
+            
+            document.querySelector('.payment-steps').innerHTML = `
+                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy ${selectedPayment.toUpperCase()} address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ${selectedPayment.toUpperCase()}</p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Use <strong>${networkInfo}</strong></p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Wait for confirmation</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. Contact us with transaction hash</p>
+            `;
+        }
+
+        function copyWalletAddress() {
+            const address = walletAddresses[selectedPayment];
+            navigator.clipboard.writeText(address).then(() => {
+                alert('✅ Wallet address copied!\n\nPaste it in your crypto wallet to send payment.');
+            });
+        }
+
+        function completePayment() {
+            const cryptoName = selectedPayment.toUpperCase();
+            alert(
+                `₿ Payment Instructions:\n\n` +
+                `1. Send $4.99 ${cryptoName} to:\n${walletAddresses[selectedPayment]}\n\n` +
+                `2. After sending, contact us on Telegram:\n` +
+                `@ChatteloSupport\n\n` +
+                `3. Send us the transaction hash\n` +
+                `4. We will activate your premium within 5 minutes!\n\n` +
+                `💰 Money comes directly to OUR wallet!`
+            );
+            
+            // Open Telegram for support contact
+            window.open('https://t.me/ChatteloSupport', '_blank');
         }
 
         function startTextChat() {
             alert("💬 Starting free text chat...");
             // Your text chat code here
         }
+
+        // Initialize
+        updatePaymentDetails();
     </script>
 </body>
 </html>
