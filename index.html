@@ -365,7 +365,7 @@
                 <div style="text-align: left; margin: 20px 0;">
                     <h4>📥 Send USDT to:</h4>
                     <div class="wallet-address" id="walletAddress">
-                        TY76gV8s9s4Kj3hG5dF2rT6yH8jK1lP0qW
+                        TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa
                     </div>
                     <button class="copy-btn" onclick="copyWalletAddress()">
                         📋 Copy Address
@@ -406,9 +406,9 @@
     <script>
         let selectedPayment = 'usdt';
         const walletAddresses = {
-            usdt: 'TY76gV8s9s4Kj3hG5dF2rT6yH8jK1lP0qW',
-            btc: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
-            eth: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+            usdt: 'TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa',
+            btc: 'YOUR_BTC_ADDRESS_HERE',
+            eth: 'YOUR_ETH_ADDRESS_HERE'
         };
 
         function showPremiumModal() {
@@ -435,25 +435,6 @@
         function updatePaymentDetails() {
             const address = walletAddresses[selectedPayment];
             document.getElementById('walletAddress').textContent = address;
-            
-            // Update instructions based on selected crypto
-            let networkInfo = '';
-            if (selectedPayment === 'usdt') {
-                networkInfo = 'TRC20 network';
-            } else if (selectedPayment === 'btc') {
-                networkInfo = 'Bitcoin network';
-            } else if (selectedPayment === 'eth') {
-                networkInfo = 'Ethereum network (ERC20)';
-            }
-            
-            document.querySelector('.payment-steps').innerHTML = `
-                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy ${selectedPayment.toUpperCase()} address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ${selectedPayment.toUpperCase()}</p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Use <strong>${networkInfo}</strong></p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Wait for confirmation</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. Contact us with transaction hash</p>
-            `;
         }
 
         function copyWalletAddress() {
@@ -472,7 +453,7 @@
                 `@ChatteloSupport\n\n` +
                 `3. Send us the transaction hash\n` +
                 `4. We will activate your premium within 5 minutes!\n\n` +
-                `💰 Money comes directly to OUR wallet!`
+                `💰 Money comes directly to YOUR wallet at: TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa`
             );
             
             // Open Telegram for support contact
