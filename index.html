@@ -112,6 +112,18 @@
             transform: translateY(-2px);
         }
 
+        .btn-telegram {
+            background: #0088cc;
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.3);
+        }
+
+        .btn-telegram:hover {
+            background: #0077b3;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 136, 204, 0.4);
+        }
+
         .pricing-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 25px;
@@ -128,6 +140,19 @@
             background: linear-gradient(135deg, #ff6b6b, #ffa726);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .stars-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .star-icon {
+            font-size: 24px;
+            color: #FFD700;
         }
 
         .features-list {
@@ -293,6 +318,56 @@
             cursor: pointer;
             color: #666;
         }
+
+        .telegram-payment {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #0088cc;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover {
+            border-color: #0088cc;
+        }
+
+        .payment-option.selected {
+            border-color: #0088cc;
+            background: #f0f8ff;
+        }
+
+        .payment-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .payment-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .payment-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .payment-desc {
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -311,15 +386,18 @@
             <div class="premium-badge">PRO</div>
         </button>
 
-        <button class="btn btn-tertiary" onclick="openTelegram()">
-            🤖 OPEN TELEGRAM BOT
+        <button class="btn btn-telegram" onclick="openTelegram()">
+            🤖 OPEN IN TELEGRAM
         </button>
 
         <!-- Pricing Card -->
         <div class="pricing-card">
             <h3>🎥 Premium Video Chat</h3>
-            <div class="price">$4.99/month</div>
-            <p style="font-size: 14px; opacity: 0.8;">Unlock HD video calls</p>
+            <div class="stars-price">
+                <span class="star-icon">⭐</span>
+                <div class="price">149 Stars</div>
+            </div>
+            <p style="font-size: 14px; opacity: 0.8;">Pay with Telegram Wallet</p>
             
             <div class="features-list">
                 <div class="feature-item">
@@ -344,8 +422,8 @@
                 </div>
             </div>
             
-            <button class="btn btn-premium" onclick="showPremiumModal()" style="margin-top: 15px;">
-                🔓 UNLOCK PREMIUM
+            <button class="btn btn-telegram" onclick="showPremiumModal()" style="margin-top: 15px;">
+                💫 PAY WITH STARS
             </button>
         </div>
 
@@ -381,15 +459,19 @@
         </div>
     </div>
 
-    <!-- Premium Modal -->
+    <!-- Premium Modal with Telegram Payments -->
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
             <h2>🎥 Upgrade to Premium</h2>
-            <p style="margin: 15px 0; color: #666;">Unlock HD video chat and premium features</p>
+            <p style="margin: 15px 0; color: #666;">Unlock HD video chat with Telegram Stars</p>
             
-            <div style="background: #f8f9fa; padding: 20px; border-radius: 15px; margin: 20px 0;">
-                <div class="price" style="font-size: 28px;">$4.99<span style="font-size: 14px; color: #666;">/month</span></div>
+            <div class="telegram-payment">
+                <div class="stars-price">
+                    <span class="star-icon">⭐</span>
+                    <div class="price">149 Stars</div>
+                </div>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
             </div>
             
             <div style="text-align: left; margin: 20px 0;">
@@ -410,16 +492,33 @@
                     <span>Unlimited Chat Time</span>
                 </div>
             </div>
+
+            <!-- Payment Options -->
+            <div class="payment-option" onclick="selectPayment('stars')" id="starsOption">
+                <div class="payment-icon">💫</div>
+                <div class="payment-info">
+                    <div class="payment-title">Telegram Stars</div>
+                    <div class="payment-desc">Pay from your Telegram Wallet</div>
+                </div>
+                <div style="font-weight: bold;">149 ⭐</div>
+            </div>
+
+            <div class="payment-option" onclick="selectPayment('crypto')" id="cryptoOption">
+                <div class="payment-icon">₿</div>
+                <div class="payment-info">
+                    <div class="payment-title">Cryptocurrency</div>
+                    <div class="payment-desc">USDT, Bitcoin, Ethereum</div>
+                </div>
+                <div style="font-weight: bold;">$4.99</div>
+            </div>
             
-            <button class="btn btn-premium" style="width: 100%; margin: 10px 0;">
-                💳 Subscribe Now - $4.99/month
+            <button class="btn btn-telegram" style="width: 100%; margin: 20px 0;" onclick="processPayment()">
+                💫 PAY WITH TELEGRAM STARS
             </button>
             
-            <button class="btn btn-tertiary" style="width: 100%; margin: 5px 0; background: transparent; color: #666;">
-                Try 3 days free trial
-            </button>
-            
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">Cancel anytime • No commitment</p>
+            <p style="font-size: 12px; color: #999; margin-top: 15px;">
+                🔒 Secure payment • Instant activation • No commitment
+            </p>
         </div>
     </div>
 
@@ -427,6 +526,7 @@
         let chatTimer = null;
         let chatSeconds = 0;
         let isConnected = false;
+        let selectedPayment = 'stars';
 
         function startTextChat() {
             document.getElementById('landingPage').style.display = 'none';
@@ -457,6 +557,37 @@
 
         function closePremiumModal() {
             document.getElementById('premiumModal').style.display = 'none';
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            
+            // Update UI
+            document.getElementById('starsOption').classList.remove('selected');
+            document.getElementById('cryptoOption').classList.remove('selected');
+            
+            if (method === 'stars') {
+                document.getElementById('starsOption').classList.add('selected');
+            } else {
+                document.getElementById('cryptoOption').classList.add('selected');
+            }
+        }
+
+        function processPayment() {
+            if (selectedPayment === 'stars') {
+                // Telegram Stars payment
+                alert("💰 Opening Telegram Wallet...\n\nPlease confirm payment of 149 Stars for premium access.");
+                
+                // Simulate payment processing
+                setTimeout(() => {
+                    alert("🎉 Payment Successful!\n\nYou now have premium video chat access!");
+                    closePremiumModal();
+                }, 2000);
+                
+            } else {
+                // Crypto payment
+                alert("₿ Redirecting to cryptocurrency payment...");
+            }
         }
 
         function connectToChat() {
@@ -535,6 +666,9 @@
                 closePremiumModal();
             }
         });
+
+        // Initialize with stars selected
+        selectPayment('stars');
     </script>
 </body>
 </html>
