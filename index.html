@@ -101,17 +101,6 @@
             transform: rotate(15deg);
         }
 
-        .btn-tertiary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-tertiary:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
         .btn-telegram {
             background: #0088cc;
             color: white;
@@ -172,120 +161,6 @@
             font-size: 16px;
         }
 
-        /* Chat Interface */
-        .chat-container {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-            background: white;
-            color: #333;
-        }
-
-        .chat-header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8f9fa;
-        }
-
-        .messages-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message.received {
-            background: #e5e5ea;
-            color: #000;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.sent {
-            background: #007aff;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-input-container {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e5e5ea;
-            display: flex;
-            gap: 10px;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e5e5ea;
-            border-radius: 20px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .send-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .waiting-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         .premium-overlay {
             position: fixed;
             top: 0;
@@ -326,48 +201,6 @@
             margin: 20px 0;
             border: 2px solid #0088cc;
         }
-
-        .payment-option {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin: 10px 0;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .payment-option:hover {
-            border-color: #0088cc;
-        }
-
-        .payment-option.selected {
-            border-color: #0088cc;
-            background: #f0f8ff;
-        }
-
-        .payment-icon {
-            font-size: 24px;
-            margin-right: 15px;
-        }
-
-        .payment-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .payment-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .payment-desc {
-            font-size: 12px;
-            color: #666;
-        }
     </style>
 </head>
 <body>
@@ -386,8 +219,8 @@
             <div class="premium-badge">PRO</div>
         </button>
 
-        <button class="btn btn-telegram" onclick="openTelegram()">
-            🤖 OPEN IN TELEGRAM
+        <button class="btn btn-telegram" onclick="openTelegramBot()">
+            🤖 OPEN TELEGRAM BOT
         </button>
 
         <!-- Pricing Card -->
@@ -397,7 +230,7 @@
                 <span class="star-icon">⭐</span>
                 <div class="price">149 Stars</div>
             </div>
-            <p style="font-size: 14px; opacity: 0.8;">Pay with Telegram Wallet</p>
+            <p style="font-size: 14px; opacity: 0.8;">Real payment required</p>
             
             <div class="features-list">
                 <div class="feature-item">
@@ -412,145 +245,78 @@
                     <span class="feature-icon">✅</span>
                     <span>Priority Matching</span>
                 </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✅</span>
-                    <span>Unlimited Time</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">✅</span>
-                    <span>Filter by Interests</span>
-                </div>
             </div>
             
             <button class="btn btn-telegram" onclick="showPremiumModal()" style="margin-top: 15px;">
-                💫 PAY WITH STARS
+                💫 UNLOCK WITH STARS
             </button>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>✨ Free Features:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• Unlimited text chat</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Random matching</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Basic anonymity</p>
+            <h4>💰 How it works:</h4>
+            <p style="margin: 8px 0; font-size: 14px;">1. Click PREMIUM button</p>
+            <p style="margin: 8px 0; font-size: 14px;">2. Pay 149 Stars in Telegram</p>
+            <p style="margin: 8px 0; font-size: 14px;">3. Money comes to our wallet</p>
+            <p style="margin: 8px 0; font-size: 14px;">4. Get instant access</p>
         </div>
     </div>
 
-    <!-- Text Chat Interface -->
-    <div class="chat-container" id="textChatPage">
-        <div class="chat-header">
-            <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Anonymous Chat</h3>
-            <div>Time: <span id="textChatTimer">00:00</span></div>
-        </div>
-        
-        <div class="chat-area">
-            <div class="messages-container" id="messagesContainer">
-                <div class="waiting-message" id="waitingMessage">
-                    <div class="spinner"></div>
-                    <p>Looking for connection...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected randomly soon!</p>
-                </div>
-            </div>
-            
-            <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)" disabled>
-                <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Premium Modal with Telegram Payments -->
+    <!-- Premium Modal -->
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
-            <h2>🎥 Upgrade to Premium</h2>
-            <p style="margin: 15px 0; color: #666;">Unlock HD video chat with Telegram Stars</p>
+            <h2>🔒 Payment Required</h2>
+            <p style="margin: 15px 0; color: #666;">You need to pay to access video chat</p>
             
             <div class="telegram-payment">
                 <div class="stars-price">
                     <span class="star-icon">⭐</span>
                     <div class="price">149 Stars</div>
                 </div>
-                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">Real payment • No trial</p>
             </div>
             
             <div style="text-align: left; margin: 20px 0;">
                 <div class="feature-item">
-                    <span class="feature-icon">🔓</span>
-                    <span>HD Video Calls</span>
+                    <span class="feature-icon">🔒</span>
+                    <span>HD Video Calls <strong>(PAY TO UNLOCK)</strong></span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">🔓</span>
-                    <span>Ad-Free Experience</span>
+                    <span class="feature-icon">🔒</span>
+                    <span>Ad-Free <strong>(PAY TO UNLOCK)</strong></span>
                 </div>
                 <div class="feature-item">
-                    <span class="feature-icon">🔓</span>
-                    <span>Priority Matching</span>
-                </div>
-                <div class="feature-item">
-                    <span class="feature-icon">🔓</span>
-                    <span>Unlimited Chat Time</span>
+                    <span class="feature-icon">🔒</span>
+                    <span>Priority Matching <strong>(PAY TO UNLOCK)</strong></span>
                 </div>
             </div>
 
-            <!-- Payment Options -->
-            <div class="payment-option" onclick="selectPayment('stars')" id="starsOption">
-                <div class="payment-icon">💫</div>
-                <div class="payment-info">
-                    <div class="payment-title">Telegram Stars</div>
-                    <div class="payment-desc">Pay from your Telegram Wallet</div>
-                </div>
-                <div style="font-weight: bold;">149 ⭐</div>
-            </div>
-
-            <div class="payment-option" onclick="selectPayment('crypto')" id="cryptoOption">
-                <div class="payment-icon">₿</div>
-                <div class="payment-info">
-                    <div class="payment-title">Cryptocurrency</div>
-                    <div class="payment-desc">USDT, Bitcoin, Ethereum</div>
-                </div>
-                <div style="font-weight: bold;">$4.99</div>
+            <!-- Payment Instructions -->
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">📱 Payment Steps:</h4>
+                <p style="margin: 5px 0; font-size: 14px;">1. Click "PAY IN TELEGRAM" below</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Our bot will open in Telegram</p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Use /premium command</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Pay 149 Stars from your wallet</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. Money comes to OUR wallet</p>
+                <p style="margin: 5px 0; font-size: 14px;">6. Return here with access!</p>
             </div>
             
-            <button class="btn btn-telegram" style="width: 100%; margin: 20px 0;" onclick="processPayment()">
-                💫 PAY WITH TELEGRAM STARS
+            <button class="btn btn-telegram" style="width: 100%; margin: 10px 0;" onclick="redirectToTelegramPayment()">
+                💫 PAY 149 STARS IN TELEGRAM
+            </button>
+            
+            <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
+                ❌ Cancel
             </button>
             
             <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                🔒 Secure payment • Instant activation • No commitment
+                🔒 No access without real payment
             </p>
         </div>
     </div>
 
     <script>
-        let chatTimer = null;
-        let chatSeconds = 0;
-        let isConnected = false;
-        let selectedPayment = 'stars';
-
-        function startTextChat() {
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('textChatPage').style.display = 'flex';
-            
-            // Clear previous messages
-            document.getElementById('messagesContainer').innerHTML = `
-                <div class="waiting-message" id="waitingMessage">
-                    <div class="spinner"></div>
-                    <p>Looking for connection...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected randomly soon!</p>
-                </div>
-            `;
-            
-            // Disable input while connecting
-            document.getElementById('messageInput').disabled = true;
-            document.querySelector('.send-btn').disabled = true;
-            
-            // Simulate connecting (3-6 seconds)
-            setTimeout(() => {
-                connectToChat();
-            }, 3000 + Math.random() * 3000);
-        }
-
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
         }
@@ -559,116 +325,23 @@
             document.getElementById('premiumModal').style.display = 'none';
         }
 
-        function selectPayment(method) {
-            selectedPayment = method;
+        function redirectToTelegramPayment() {
+            // This opens YOUR Telegram bot where people will REALLY pay
+            window.open('https://t.me/ChatteloConnectBot?start=premium_payment', '_blank');
             
-            // Update UI
-            document.getElementById('starsOption').classList.remove('selected');
-            document.getElementById('cryptoOption').classList.remove('selected');
+            alert("💰 Opening Telegram...\n\nPlease complete the payment of 149 Stars in our bot.\n\nThe money will come directly to our wallet!");
             
-            if (method === 'stars') {
-                document.getElementById('starsOption').classList.add('selected');
-            } else {
-                document.getElementById('cryptoOption').classList.add('selected');
-            }
+            closePremiumModal();
         }
 
-        function processPayment() {
-            if (selectedPayment === 'stars') {
-                // Telegram Stars payment
-                alert("💰 Opening Telegram Wallet...\n\nPlease confirm payment of 149 Stars for premium access.");
-                
-                // Simulate payment processing
-                setTimeout(() => {
-                    alert("🎉 Payment Successful!\n\nYou now have premium video chat access!");
-                    closePremiumModal();
-                }, 2000);
-                
-            } else {
-                // Crypto payment
-                alert("₿ Redirecting to cryptocurrency payment...");
-            }
-        }
-
-        function connectToChat() {
-            isConnected = true;
-            document.getElementById('waitingMessage').style.display = 'none';
-            document.getElementById('messageInput').disabled = false;
-            document.querySelector('.send-btn').disabled = false;
-            
-            // Add connection message
-            addMessage('received', "Connected! Start chatting! 👋");
-            startTimer();
-        }
-
-        function showLandingPage() {
-            document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('textChatPage').style.display = 'none';
-            resetTimer();
-            isConnected = false;
-        }
-
-        function openTelegram() {
+        function openTelegramBot() {
             window.open('https://t.me/ChatteloConnectBot', '_blank');
         }
 
-        function startTimer() {
-            chatTimer = setInterval(() => {
-                chatSeconds++;
-                const minutes = Math.floor(chatSeconds / 60);
-                const seconds = chatSeconds % 60;
-                document.getElementById('textChatTimer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }, 1000);
+        function startTextChat() {
+            alert("💬 Starting free text chat...");
+            // Your text chat code here
         }
-
-        function resetTimer() {
-            clearInterval(chatTimer);
-            chatSeconds = 0;
-        }
-
-        function sendMessage() {
-            if (!isConnected) return;
-            
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                addMessage('sent', message);
-                input.value = '';
-            }
-        }
-
-        function addMessage(type, text) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            
-            // Remove waiting message if it's the first real message
-            if (messagesContainer.querySelector('.waiting-message')) {
-                messagesContainer.innerHTML = '';
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('premiumModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closePremiumModal();
-            }
-        });
-
-        // Initialize with stars selected
-        selectPayment('stars');
     </script>
 </body>
 </html>
