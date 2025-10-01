@@ -257,6 +257,15 @@
             font-size: 12px;
             color: #666;
         }
+
+        .network-info {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #0066cc;
+        }
     </style>
 </head>
 <body>
@@ -310,10 +319,10 @@
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>💰 Accepting:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• USDT (TRC20)</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Bitcoin (BTC)</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH)</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Works in ALL countries</p>
+            <p style="margin: 8px 0; font-size: 14px;">• USDT (TRC20) - Fast & Cheap</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Bitcoin (BTC) - Original</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH) - Popular</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Works in ALL countries 🌍</p>
         </div>
     </div>
 
@@ -360,10 +369,10 @@
                 <div style="font-weight: bold;">$4.99</div>
             </div>
 
-            <!-- Wallet Address -->
+            <!-- Wallet Address & Network Info -->
             <div id="paymentDetails">
                 <div style="text-align: left; margin: 20px 0;">
-                    <h4>📥 Send USDT to:</h4>
+                    <h4>📥 Send Payment to:</h4>
                     <div class="wallet-address" id="walletAddress">
                         TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa
                     </div>
@@ -371,10 +380,10 @@
                         📋 Copy Address
                     </button>
                     
-                    <div style="margin-top: 15px; font-size: 12px; color: #666;">
-                        <p>🔹 Network: <strong>TRC20</strong></p>
-                        <p>🔹 Amount: <strong>$4.99 USDT</strong></p>
-                        <p>🔹 Send exact amount only</p>
+                    <div class="network-info" id="networkInfo">
+                        🔹 <strong>TRC20 Network</strong><br>
+                        🔹 Amount: <strong>$4.99 USDT</strong><br>
+                        🔹 Send exact amount only
                     </div>
                 </div>
             </div>
@@ -382,11 +391,13 @@
             <!-- Payment Instructions -->
             <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
                 <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+                <div id="paymentSteps">
+                    <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
+                    <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
+                    <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
+                    <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                    <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+                </div>
             </div>
             
             <button class="btn btn-crypto" style="width: 100%; margin: 10px 0;" onclick="completePayment()">
@@ -405,10 +416,42 @@
 
     <script>
         let selectedPayment = 'usdt';
+        
+        // YOUR REAL WALLET ADDRESSES
         const walletAddresses = {
             usdt: 'TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa',
-            btc: 'YOUR_BTC_ADDRESS_HERE',
-            eth: 'YOUR_ETH_ADDRESS_HERE'
+            btc: 'bc1q2frptn9rhxz6cwkwd7krgj5yu7cchmks4kgqt2',
+            eth: '0xc177aff156b09bde15c42ced27036ec6a199063a'
+        };
+
+        const networkInfo = {
+            usdt: '🔹 <strong>TRC20 Network</strong><br>🔹 Amount: <strong>$4.99 USDT</strong><br>🔹 Send exact amount only',
+            btc: '🔹 <strong>Bitcoin Network</strong><br>🔹 Amount: <strong>$4.99 BTC</strong><br>🔹 Send exact amount only',
+            eth: '🔹 <strong>Ethereum Network (ERC20)</strong><br>🔹 Amount: <strong>$4.99 ETH</strong><br>🔹 Send exact amount only'
+        };
+
+        const paymentSteps = {
+            usdt: `
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy USDT address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via <strong>TRC20 network</strong></p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 minutes)</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+            `,
+            btc: `
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy Bitcoin address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of BTC</p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (10-30 minutes)</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction ID</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+            `,
+            eth: `
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+            `
         };
 
         function showPremiumModal() {
@@ -435,6 +478,8 @@
         function updatePaymentDetails() {
             const address = walletAddresses[selectedPayment];
             document.getElementById('walletAddress').textContent = address;
+            document.getElementById('networkInfo').innerHTML = networkInfo[selectedPayment];
+            document.getElementById('paymentSteps').innerHTML = paymentSteps[selectedPayment];
         }
 
         function copyWalletAddress() {
@@ -446,14 +491,16 @@
 
         function completePayment() {
             const cryptoName = selectedPayment.toUpperCase();
+            const yourWallet = walletAddresses[selectedPayment];
+            
             alert(
                 `₿ Payment Instructions:\n\n` +
-                `1. Send $4.99 ${cryptoName} to:\n${walletAddresses[selectedPayment]}\n\n` +
+                `1. Send $4.99 ${cryptoName} to:\n${yourWallet}\n\n` +
                 `2. After sending, contact us on Telegram:\n` +
                 `@ChatteloSupport\n\n` +
-                `3. Send us the transaction hash\n` +
+                `3. Send us the transaction hash/ID\n` +
                 `4. We will activate your premium within 5 minutes!\n\n` +
-                `💰 Money comes directly to YOUR wallet at: TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa`
+                `💰 Money comes directly to YOUR wallet!`
             );
             
             // Open Telegram for support contact
