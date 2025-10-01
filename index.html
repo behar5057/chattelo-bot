@@ -112,6 +112,12 @@
             box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
         }
 
+        .btn-success {
+            background: #4cd964;
+            color: white;
+            box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3);
+        }
+
         .pricing-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 25px;
@@ -179,6 +185,8 @@
             text-align: center;
             max-width: 350px;
             color: #333;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close-btn {
@@ -266,6 +274,84 @@
             font-size: 12px;
             color: #0066cc;
         }
+
+        .proof-form {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        .proof-submitted {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e5e5ea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .step.active {
+            background: #4cd964;
+            color: white;
+        }
+
+        .step-line {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            height: 2px;
+            background: #e5e5ea;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -330,49 +416,68 @@
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
-            <h2>₿ Crypto Payment</h2>
-            <p style="margin: 15px 0; color: #666;">Pay $4.99 with cryptocurrency</p>
             
-            <div class="crypto-payment">
-                <div class="crypto-price">
-                    <span class="crypto-icon">₿</span>
-                    <div class="price">$4.99</div>
-                </div>
-                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
+            <div class="step-indicator">
+                <div class="step active">1</div>
+                <div class="step" id="step2">2</div>
+                <div class="step" id="step3">3</div>
+                <div class="step-line"></div>
             </div>
 
-            <!-- Payment Options -->
-            <div class="payment-option selected" onclick="selectPayment('usdt')" id="usdtOption">
-                <div class="payment-icon">💎</div>
-                <div class="payment-info">
-                    <div class="payment-title">USDT (TRC20)</div>
-                    <div class="payment-desc">Recommended - Fast & Low fees</div>
+            <!-- Step 1: Payment Method -->
+            <div id="step1Content">
+                <h2>₿ Choose Payment Method</h2>
+                <p style="margin: 15px 0; color: #666;">Select your preferred cryptocurrency</p>
+                
+                <div class="crypto-payment">
+                    <div class="crypto-price">
+                        <span class="crypto-icon">₿</span>
+                        <div class="price">$4.99</div>
+                    </div>
+                    <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
                 </div>
-                <div style="font-weight: bold;">$4.99</div>
+
+                <!-- Payment Options -->
+                <div class="payment-option selected" onclick="selectPayment('usdt')" id="usdtOption">
+                    <div class="payment-icon">💎</div>
+                    <div class="payment-info">
+                        <div class="payment-title">USDT (TRC20)</div>
+                        <div class="payment-desc">Recommended - Fast & Low fees</div>
+                    </div>
+                    <div style="font-weight: bold;">$4.99</div>
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('btc')" id="btcOption">
+                    <div class="payment-icon">₿</div>
+                    <div class="payment-info">
+                        <div class="payment-title">Bitcoin (BTC)</div>
+                        <div class="payment-desc">Original cryptocurrency</div>
+                    </div>
+                    <div style="font-weight: bold;">$4.99</div>
+                </div>
+
+                <div class="payment-option" onclick="selectPayment('eth')" id="ethOption">
+                    <div class="payment-icon">🔷</div>
+                    <div class="payment-info">
+                        <div class="payment-title">Ethereum (ETH)</div>
+                        <div class="payment-desc">Smart contract platform</div>
+                    </div>
+                    <div style="font-weight: bold;">$4.99</div>
+                </div>
+
+                <button class="btn btn-crypto" style="width: 100%; margin: 20px 0;" onclick="showPaymentDetails()">
+                    💳 CONTINUE TO PAYMENT
+                </button>
             </div>
 
-            <div class="payment-option" onclick="selectPayment('btc')" id="btcOption">
-                <div class="payment-icon">₿</div>
-                <div class="payment-info">
-                    <div class="payment-title">Bitcoin (BTC)</div>
-                    <div class="payment-desc">Original cryptocurrency</div>
-                </div>
-                <div style="font-weight: bold;">$4.99</div>
-            </div>
+            <!-- Step 2: Payment Details -->
+            <div id="step2Content" style="display: none;">
+                <h2>📥 Send Payment</h2>
+                <p style="margin: 15px 0; color: #666;">Send $4.99 to the address below</p>
 
-            <div class="payment-option" onclick="selectPayment('eth')" id="ethOption">
-                <div class="payment-icon">🔷</div>
-                <div class="payment-info">
-                    <div class="payment-title">Ethereum (ETH)</div>
-                    <div class="payment-desc">Smart contract platform</div>
-                </div>
-                <div style="font-weight: bold;">$4.99</div>
-            </div>
-
-            <!-- Wallet Address & Network Info -->
-            <div id="paymentDetails">
+                <!-- Wallet Address & Network Info -->
                 <div style="text-align: left; margin: 20px 0;">
-                    <h4>📥 Send Payment to:</h4>
+                    <h4>Your Wallet Address:</h4>
                     <div class="wallet-address" id="walletAddress">
                         TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa
                     </div>
@@ -386,36 +491,94 @@
                         🔹 Send exact amount only
                     </div>
                 </div>
+
+                <!-- Payment Instructions -->
+                <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                    <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
+                    <div id="paymentSteps">
+                        <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
+                        <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
+                        <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
+                        <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
+                        <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-success" style="width: 100%; margin: 10px 0;" onclick="showProofForm()">
+                    💎 I HAVE PAID - SUBMIT PROOF
+                </button>
+
+                <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="showStep1()">
+                    ← Back
+                </button>
             </div>
 
-            <!-- Payment Instructions -->
-            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
-                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
-                <div id="paymentSteps">
-                    <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
-                    <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
-                    <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
-                    <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                    <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+            <!-- Step 3: Proof Submission -->
+            <div id="step3Content" style="display: none;">
+                <h2>📤 Submit Payment Proof</h2>
+                <p style="margin: 15px 0; color: #666;">Help us verify your payment quickly</p>
+
+                <div class="proof-form">
+                    <div class="form-group">
+                        <label class="form-label">Transaction Hash / ID *</label>
+                        <input type="text" class="form-input" id="transactionHash" placeholder="0x7d8f7a6b5c4d3e2f1a9b8c7d6e5f4a3b2c1d0e9f">
+                        <small style="color: #666;">Paste your transaction ID from the blockchain</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Your Telegram Username *</label>
+                        <input type="text" class="form-input" id="telegramUsername" placeholder="@username">
+                        <small style="color: #666;">So we can contact you</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Payment Date & Time *</label>
+                        <input type="datetime-local" class="form-input" id="paymentDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Notes (Optional)</label>
+                        <textarea class="form-textarea" id="additionalNotes" placeholder="Any extra information about your payment..."></textarea>
+                    </div>
                 </div>
+
+                <button class="btn btn-success" style="width: 100%; margin: 20px 0;" onclick="submitPaymentProof()">
+                    ✅ SUBMIT PAYMENT PROOF
+                </button>
+
+                <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="showPaymentDetails()">
+                    ← Back
+                </button>
             </div>
-            
-            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0;" onclick="completePayment()">
-                💎 I HAVE PAID - ACTIVATE ACCESS
-            </button>
-            
-            <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
-                ❌ Cancel
-            </button>
-            
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                🔒 Manual verification • Contact us after payment
-            </p>
+
+            <!-- Step 4: Proof Submitted -->
+            <div id="step4Content" style="display: none;">
+                <div class="proof-submitted">
+                    <h2>✅ Proof Submitted!</h2>
+                    <p style="margin: 15px 0;">We've received your payment proof</p>
+                    
+                    <div style="text-align: left; background: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                        <h4>📋 Your Submission:</h4>
+                        <p><strong>Transaction:</strong> <span id="submittedHash"></span></p>
+                        <p><strong>Telegram:</strong> <span id="submittedTelegram"></span></p>
+                        <p><strong>Payment Method:</strong> <span id="submittedMethod"></span></p>
+                    </div>
+
+                    <p style="font-size: 14px; color: #666;">
+                        We'll verify your payment and activate your premium access within 5-15 minutes! ⚡
+                    </p>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="closePremiumModal()">
+                    🎉 GOT IT - CLOSE
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
         let selectedPayment = 'usdt';
+        let currentStep = 1;
         
         // YOUR REAL WALLET ADDRESSES
         const walletAddresses = {
@@ -435,32 +598,51 @@
                 <p style="margin: 5px 0; font-size: 14px;">1. Copy USDT address above</p>
                 <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via <strong>TRC20 network</strong></p>
                 <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
             `,
             btc: `
                 <p style="margin: 5px 0; font-size: 14px;">1. Copy Bitcoin address above</p>
                 <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of BTC</p>
                 <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (10-30 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction ID</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
             `,
             eth: `
                 <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
                 <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
                 <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate your premium instantly!</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
             `
         };
 
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
-            updatePaymentDetails();
+            resetToStep1();
         }
 
         function closePremiumModal() {
             document.getElementById('premiumModal').style.display = 'none';
+            resetToStep1();
+        }
+
+        function resetToStep1() {
+            currentStep = 1;
+            showStep1();
+            updateStepIndicator();
+        }
+
+        function updateStepIndicator() {
+            // Reset all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Activate current step and previous steps
+            for (let i = 1; i <= currentStep; i++) {
+                document.getElementById('step' + i).classList.add('active');
+            }
         }
 
         function selectPayment(method) {
@@ -472,7 +654,43 @@
             document.getElementById('ethOption').classList.remove('selected');
             
             document.getElementById(method + 'Option').classList.add('selected');
+        }
+
+        function showStep1() {
+            currentStep = 1;
+            document.getElementById('step1Content').style.display = 'block';
+            document.getElementById('step2Content').style.display = 'none';
+            document.getElementById('step3Content').style.display = 'none';
+            document.getElementById('step4Content').style.display = 'none';
+            updateStepIndicator();
+        }
+
+        function showPaymentDetails() {
+            currentStep = 2;
+            document.getElementById('step1Content').style.display = 'none';
+            document.getElementById('step2Content').style.display = 'block';
+            document.getElementById('step3Content').style.display = 'none';
+            document.getElementById('step4Content').style.display = 'none';
             updatePaymentDetails();
+            updateStepIndicator();
+        }
+
+        function showProofForm() {
+            currentStep = 3;
+            document.getElementById('step1Content').style.display = 'none';
+            document.getElementById('step2Content').style.display = 'none';
+            document.getElementById('step3Content').style.display = 'block';
+            document.getElementById('step4Content').style.display = 'none';
+            updateStepIndicator();
+        }
+
+        function showProofSubmitted() {
+            currentStep = 4;
+            document.getElementById('step1Content').style.display = 'none';
+            document.getElementById('step2Content').style.display = 'none';
+            document.getElementById('step3Content').style.display = 'none';
+            document.getElementById('step4Content').style.display = 'block';
+            updateStepIndicator();
         }
 
         function updatePaymentDetails() {
@@ -489,22 +707,48 @@
             });
         }
 
-        function completePayment() {
-            const cryptoName = selectedPayment.toUpperCase();
-            const yourWallet = walletAddresses[selectedPayment];
+        function submitPaymentProof() {
+            const transactionHash = document.getElementById('transactionHash').value.trim();
+            const telegramUsername = document.getElementById('telegramUsername').value.trim();
+            const paymentDate = document.getElementById('paymentDate').value;
+            const additionalNotes = document.getElementById('additionalNotes').value.trim();
+
+            // Basic validation
+            if (!transactionHash) {
+                alert('❌ Please enter your transaction hash!');
+                return;
+            }
+
+            if (!telegramUsername) {
+                alert('❌ Please enter your Telegram username!');
+                return;
+            }
+
+            if (!paymentDate) {
+                alert('❌ Please select payment date and time!');
+                return;
+            }
+
+            // Show submitted data
+            document.getElementById('submittedHash').textContent = transactionHash;
+            document.getElementById('submittedTelegram').textContent = telegramUsername;
+            document.getElementById('submittedMethod').textContent = selectedPayment.toUpperCase();
+
+            // In a real system, you would send this data to your server
+            // For now, we'll just show the confirmation
+            showProofSubmitted();
+
+            // Simulate sending data to your system
+            console.log('💰 PAYMENT PROOF SUBMITTED:');
+            console.log('Transaction Hash:', transactionHash);
+            console.log('Telegram:', telegramUsername);
+            console.log('Payment Method:', selectedPayment);
+            console.log('Payment Date:', paymentDate);
+            console.log('Notes:', additionalNotes);
+            console.log('Wallet Used:', walletAddresses[selectedPayment]);
             
-            alert(
-                `₿ Payment Instructions:\n\n` +
-                `1. Send $4.99 ${cryptoName} to:\n${yourWallet}\n\n` +
-                `2. After sending, contact us on Telegram:\n` +
-                `@ChatteloSupport\n\n` +
-                `3. Send us the transaction hash/ID\n` +
-                `4. We will activate your premium within 5 minutes!\n\n` +
-                `💰 Money comes directly to YOUR wallet!`
-            );
-            
-            // Open Telegram for support contact
-            window.open('https://t.me/ChatteloSupport', '_blank');
+            // You would typically send this to your backend or email
+            alert('📤 Payment proof submitted!\n\nWe will verify and activate your premium within 5-15 minutes!');
         }
 
         function startTextChat() {
