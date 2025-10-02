@@ -112,12 +112,6 @@
             box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
         }
 
-        .btn-success {
-            background: #4cd964;
-            color: white;
-            box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3);
-        }
-
         .pricing-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 25px;
@@ -275,82 +269,14 @@
             color: #0066cc;
         }
 
-        .proof-form {
-            text-align: left;
-            margin: 20px 0;
-        }
-
-        .form-group {
-            margin: 15px 0;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
+        .metamask-notice {
+            background: #fef6dd;
+            border: 1px solid #fcd34d;
+            padding: 10px;
             border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-            min-height: 80px;
-            resize: vertical;
-            font-family: monospace;
-        }
-
-        .proof-submitted {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin: 20px 0;
-            position: relative;
-        }
-
-        .step {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #e5e5ea;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            z-index: 2;
-        }
-
-        .step.active {
-            background: #4cd964;
-            color: white;
-        }
-
-        .step-line {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            height: 2px;
-            background: #e5e5ea;
-            z-index: 1;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #92400e;
         }
     </style>
 </head>
@@ -377,7 +303,7 @@
                 <span class="crypto-icon">₿</span>
                 <div class="price">$4.99</div>
             </div>
-            <p style="font-size: 14px; opacity: 0.8;">Pay with Crypto - Works Worldwide</p>
+            <p style="font-size: 14px; opacity: 0.8;">Pay with Ethereum - Static MetaMask Address</p>
             
             <div class="features-list">
                 <div class="feature-item">
@@ -399,16 +325,16 @@
             </div>
             
             <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
-                ₿ PAY WITH CRYPTO
+                🔷 PAY WITH ETHEREUM
             </button>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>💰 Accepting:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• USDT (TRC20) - Fast & Cheap</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Bitcoin (BTC) - Original</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH) - Popular</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Works in ALL countries 🌍</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH) - Static MetaMask Address</p>
+            <p style="margin: 8px 0; font-size: 14px;">• USDT (ERC20) - Same ETH Address</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Permanent address - Never changes</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Works worldwide 🌍</p>
         </div>
     </div>
 
@@ -416,281 +342,135 @@
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
+            <h2>🔷 Ethereum Payment</h2>
+            <p style="margin: 15px 0; color: #666;">Pay $4.99 with Ethereum</p>
             
-            <div class="step-indicator">
-                <div class="step active">1</div>
-                <div class="step" id="step2">2</div>
-                <div class="step" id="step3">3</div>
-                <div class="step-line"></div>
+            <div class="crypto-payment">
+                <div class="crypto-price">
+                    <span class="crypto-icon">🔷</span>
+                    <div class="price">$4.99</div>
+                </div>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
             </div>
 
-            <!-- Step 1: Payment Method -->
-            <div id="step1Content">
-                <h2>₿ Choose Payment Method</h2>
-                <p style="margin: 15px 0; color: #666;">Select your preferred cryptocurrency</p>
-                
-                <div class="crypto-payment">
-                    <div class="crypto-price">
-                        <span class="crypto-icon">₿</span>
-                        <div class="price">$4.99</div>
-                    </div>
-                    <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
+            <!-- Payment Options -->
+            <div class="payment-option selected" onclick="selectPayment('eth')" id="ethOption">
+                <div class="payment-icon">🔷</div>
+                <div class="payment-info">
+                    <div class="payment-title">Ethereum (ETH)</div>
+                    <div class="payment-desc">Native Ethereum • Static MetaMask address</div>
                 </div>
-
-                <!-- Payment Options -->
-                <div class="payment-option selected" onclick="selectPayment('usdt')" id="usdtOption">
-                    <div class="payment-icon">💎</div>
-                    <div class="payment-info">
-                        <div class="payment-title">USDT (TRC20)</div>
-                        <div class="payment-desc">Recommended - Fast & Low fees</div>
-                    </div>
-                    <div style="font-weight: bold;">$4.99</div>
-                </div>
-
-                <div class="payment-option" onclick="selectPayment('btc')" id="btcOption">
-                    <div class="payment-icon">₿</div>
-                    <div class="payment-info">
-                        <div class="payment-title">Bitcoin (BTC)</div>
-                        <div class="payment-desc">Original cryptocurrency</div>
-                    </div>
-                    <div style="font-weight: bold;">$4.99</div>
-                </div>
-
-                <div class="payment-option" onclick="selectPayment('eth')" id="ethOption">
-                    <div class="payment-icon">🔷</div>
-                    <div class="payment-info">
-                        <div class="payment-title">Ethereum (ETH)</div>
-                        <div class="payment-desc">Smart contract platform</div>
-                    </div>
-                    <div style="font-weight: bold;">$4.99</div>
-                </div>
-
-                <button class="btn btn-crypto" style="width: 100%; margin: 20px 0;" onclick="showPaymentDetails()">
-                    💳 CONTINUE TO PAYMENT
-                </button>
+                <div style="font-weight: bold;">$4.99</div>
             </div>
 
-            <!-- Step 2: Payment Details -->
-            <div id="step2Content" style="display: none;">
-                <h2>📥 Send Payment</h2>
-                <p style="margin: 15px 0; color: #666;">Send $4.99 to the address below</p>
+            <div class="payment-option" onclick="selectPayment('usdt_erc20')" id="usdtErc20Option">
+                <div class="payment-icon">💎</div>
+                <div class="payment-info">
+                    <div class="payment-title">USDT (ERC20)</div>
+                    <div class="payment-desc">Stablecoin • Same ETH address • ERC20 network</div>
+                </div>
+                <div style="font-weight: bold;">$4.99</div>
+            </div>
 
-                <!-- Wallet Address & Network Info -->
+            <!-- Wallet Address & Network Info -->
+            <div id="paymentDetails">
                 <div style="text-align: left; margin: 20px 0;">
-                    <h4>Your Wallet Address:</h4>
+                    <h4>📥 Send Payment to:</h4>
                     <div class="wallet-address" id="walletAddress">
-                        TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa
+                        0x9e322AF7a08001b53e3FC93bA589cFA15437D74a
                     </div>
                     <button class="copy-btn" onclick="copyWalletAddress()">
                         📋 Copy Address
                     </button>
                     
-                    <div class="network-info" id="networkInfo">
-                        🔹 <strong>TRC20 Network</strong><br>
-                        🔹 Amount: <strong>$4.99 USDT</strong><br>
-                        🔹 Send exact amount only
+                    <div class="metamask-notice">
+                        🔒 <strong>Static MetaMask Address</strong> - This address never changes!
                     </div>
-                </div>
-
-                <!-- Payment Instructions -->
-                <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
-                    <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
-                    <div id="paymentSteps">
-                        <p style="margin: 5px 0; font-size: 14px;">1. Copy wallet address above</p>
-                        <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via TRC20 network</p>
-                        <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 min)</p>
-                        <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
-                        <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-                    </div>
-                </div>
-
-                <button class="btn btn-success" style="width: 100%; margin: 10px 0;" onclick="showProofForm()">
-                    💎 I HAVE PAID - SUBMIT PROOF
-                </button>
-
-                <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="showStep1()">
-                    ← Back
-                </button>
-            </div>
-
-            <!-- Step 3: Proof Submission -->
-            <div id="step3Content" style="display: none;">
-                <h2>📤 Submit Payment Proof</h2>
-                <p style="margin: 15px 0; color: #666;">Help us verify your payment quickly</p>
-
-                <div class="proof-form">
-                    <div class="form-group">
-                        <label class="form-label">Transaction Hash / ID *</label>
-                        <input type="text" class="form-input" id="transactionHash" placeholder="0x7d8f7a6b5c4d3e2f1a9b8c7d6e5f4a3b2c1d0e9f">
-                        <small style="color: #666;">Paste your transaction ID from the blockchain</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Your Telegram Username *</label>
-                        <input type="text" class="form-input" id="telegramUsername" placeholder="@username">
-                        <small style="color: #666;">So we can contact you</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Payment Date & Time *</label>
-                        <input type="datetime-local" class="form-input" id="paymentDate">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Additional Notes (Optional)</label>
-                        <textarea class="form-textarea" id="additionalNotes" placeholder="Any extra information about your payment..."></textarea>
-                    </div>
-                </div>
-
-                <button class="btn btn-success" style="width: 100%; margin: 20px 0;" onclick="submitPaymentProof()">
-                    ✅ SUBMIT PAYMENT PROOF
-                </button>
-
-                <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="showPaymentDetails()">
-                    ← Back
-                </button>
-            </div>
-
-            <!-- Step 4: Proof Submitted -->
-            <div id="step4Content" style="display: none;">
-                <div class="proof-submitted">
-                    <h2>✅ Proof Submitted!</h2>
-                    <p style="margin: 15px 0;">We've received your payment proof</p>
                     
-                    <div style="text-align: left; background: white; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                        <h4>📋 Your Submission:</h4>
-                        <p><strong>Transaction:</strong> <span id="submittedHash"></span></p>
-                        <p><strong>Telegram:</strong> <span id="submittedTelegram"></span></p>
-                        <p><strong>Payment Method:</strong> <span id="submittedMethod"></span></p>
+                    <div class="network-info" id="networkInfo">
+                        🔹 <strong>Ethereum Network</strong><br>
+                        🔹 Amount: <strong>$4.99 ETH</strong><br>
+                        🔹 Send exact amount only<br>
+                        🔹 Static address - Never changes
                     </div>
-
-                    <p style="font-size: 14px; color: #666;">
-                        We'll verify your payment and activate your premium access within 5-15 minutes! ⚡
-                    </p>
                 </div>
-
-                <button class="btn btn-primary" style="width: 100%; margin: 20px 0;" onclick="closePremiumModal()">
-                    🎉 GOT IT - CLOSE
-                </button>
             </div>
+
+            <!-- Payment Instructions -->
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
+                <div id="paymentSteps">
+                    <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
+                    <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
+                    <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
+                    <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                    <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0;" onclick="completePayment()">
+                💎 I HAVE PAID - ACTIVATE ACCESS
+            </button>
+            
+            <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
+                ❌ Cancel
+            </button>
+            
+            <p style="font-size: 12px; color: #999; margin-top: 15px;">
+                🔒 Permanent MetaMask address • No changes • Safe payments
+            </p>
         </div>
     </div>
 
     <script>
-        let selectedPayment = 'usdt';
-        let currentStep = 1;
+        let selectedPayment = 'eth';
         
-        // YOUR REAL WALLET ADDRESSES
+        // YOUR PERMANENT META MASK ADDRESSES
         const walletAddresses = {
-            usdt: 'TUXpr78mL2ybKDJx7zvk4K6KyHcMET5KLa',
-            btc: 'bc1q2frptn9rhxz6cwkwd7krgj5yu7cchmks4kgqt2',
-            eth: '0xc177aff156b09bde15c42ced27036ec6a199063a'
+            eth: '0x9e322AF7a08001b53e3FC93bA589cFA15437D74a',
+            usdt_erc20: '0x9e322AF7a08001b53e3FC93bA589cFA15437D74a'
         };
 
         const networkInfo = {
-            usdt: '🔹 <strong>TRC20 Network</strong><br>🔹 Amount: <strong>$4.99 USDT</strong><br>🔹 Send exact amount only',
-            btc: '🔹 <strong>Bitcoin Network</strong><br>🔹 Amount: <strong>$4.99 BTC</strong><br>🔹 Send exact amount only',
-            eth: '🔹 <strong>Ethereum Network (ERC20)</strong><br>🔹 Amount: <strong>$4.99 ETH</strong><br>🔹 Send exact amount only'
+            eth: '🔹 <strong>Ethereum Network</strong><br>🔹 Amount: <strong>$4.99 ETH</strong><br>🔹 Send exact amount only<br>🔹 Static MetaMask address',
+            usdt_erc20: '🔹 <strong>ERC20 Network</strong><br>🔹 Amount: <strong>$4.99 USDT</strong><br>🔹 Send exact amount only<br>🔹 Same as ETH address'
         };
 
         const paymentSteps = {
-            usdt: `
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy USDT address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via <strong>TRC20 network</strong></p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (2-5 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-            `,
-            btc: `
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy Bitcoin address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of BTC</p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (10-30 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-            `,
             eth: `
                 <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
                 <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
                 <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Submit proof below</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
+                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
+            `,
+            usdt_erc20: `
+                <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
+                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via <strong>ERC20 network</strong></p>
+                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
+                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
                 <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
             `
         };
 
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
-            resetToStep1();
+            updatePaymentDetails();
         }
 
         function closePremiumModal() {
             document.getElementById('premiumModal').style.display = 'none';
-            resetToStep1();
-        }
-
-        function resetToStep1() {
-            currentStep = 1;
-            showStep1();
-            updateStepIndicator();
-        }
-
-        function updateStepIndicator() {
-            // Reset all steps
-            document.querySelectorAll('.step').forEach(step => {
-                step.classList.remove('active');
-            });
-            
-            // Activate current step and previous steps
-            for (let i = 1; i <= currentStep; i++) {
-                document.getElementById('step' + i).classList.add('active');
-            }
         }
 
         function selectPayment(method) {
             selectedPayment = method;
             
             // Update UI
-            document.getElementById('usdtOption').classList.remove('selected');
-            document.getElementById('btcOption').classList.remove('selected');
             document.getElementById('ethOption').classList.remove('selected');
+            document.getElementById('usdtErc20Option').classList.remove('selected');
             
             document.getElementById(method + 'Option').classList.add('selected');
-        }
-
-        function showStep1() {
-            currentStep = 1;
-            document.getElementById('step1Content').style.display = 'block';
-            document.getElementById('step2Content').style.display = 'none';
-            document.getElementById('step3Content').style.display = 'none';
-            document.getElementById('step4Content').style.display = 'none';
-            updateStepIndicator();
-        }
-
-        function showPaymentDetails() {
-            currentStep = 2;
-            document.getElementById('step1Content').style.display = 'none';
-            document.getElementById('step2Content').style.display = 'block';
-            document.getElementById('step3Content').style.display = 'none';
-            document.getElementById('step4Content').style.display = 'none';
             updatePaymentDetails();
-            updateStepIndicator();
-        }
-
-        function showProofForm() {
-            currentStep = 3;
-            document.getElementById('step1Content').style.display = 'none';
-            document.getElementById('step2Content').style.display = 'none';
-            document.getElementById('step3Content').style.display = 'block';
-            document.getElementById('step4Content').style.display = 'none';
-            updateStepIndicator();
-        }
-
-        function showProofSubmitted() {
-            currentStep = 4;
-            document.getElementById('step1Content').style.display = 'none';
-            document.getElementById('step2Content').style.display = 'none';
-            document.getElementById('step3Content').style.display = 'none';
-            document.getElementById('step4Content').style.display = 'block';
-            updateStepIndicator();
         }
 
         function updatePaymentDetails() {
@@ -703,52 +483,26 @@
         function copyWalletAddress() {
             const address = walletAddresses[selectedPayment];
             navigator.clipboard.writeText(address).then(() => {
-                alert('✅ Wallet address copied!\n\nPaste it in your crypto wallet to send payment.');
+                alert('✅ Ethereum address copied!\n\nThis is a STATIC MetaMask address that never changes!');
             });
         }
 
-        function submitPaymentProof() {
-            const transactionHash = document.getElementById('transactionHash').value.trim();
-            const telegramUsername = document.getElementById('telegramUsername').value.trim();
-            const paymentDate = document.getElementById('paymentDate').value;
-            const additionalNotes = document.getElementById('additionalNotes').value.trim();
-
-            // Basic validation
-            if (!transactionHash) {
-                alert('❌ Please enter your transaction hash!');
-                return;
-            }
-
-            if (!telegramUsername) {
-                alert('❌ Please enter your Telegram username!');
-                return;
-            }
-
-            if (!paymentDate) {
-                alert('❌ Please select payment date and time!');
-                return;
-            }
-
-            // Show submitted data
-            document.getElementById('submittedHash').textContent = transactionHash;
-            document.getElementById('submittedTelegram').textContent = telegramUsername;
-            document.getElementById('submittedMethod').textContent = selectedPayment.toUpperCase();
-
-            // In a real system, you would send this data to your server
-            // For now, we'll just show the confirmation
-            showProofSubmitted();
-
-            // Simulate sending data to your system
-            console.log('💰 PAYMENT PROOF SUBMITTED:');
-            console.log('Transaction Hash:', transactionHash);
-            console.log('Telegram:', telegramUsername);
-            console.log('Payment Method:', selectedPayment);
-            console.log('Payment Date:', paymentDate);
-            console.log('Notes:', additionalNotes);
-            console.log('Wallet Used:', walletAddresses[selectedPayment]);
+        function completePayment() {
+            const cryptoName = selectedPayment === 'eth' ? 'ETH' : 'USDT (ERC20)';
+            const yourWallet = walletAddresses[selectedPayment];
             
-            // You would typically send this to your backend or email
-            alert('📤 Payment proof submitted!\n\nWe will verify and activate your premium within 5-15 minutes!');
+            alert(
+                `🔷 Payment Instructions:\n\n` +
+                `1. Send $4.99 ${cryptoName} to:\n${yourWallet}\n\n` +
+                `2. After sending, contact us on Telegram:\n` +
+                `@ChatteloSupport\n\n` +
+                `3. Send us the transaction hash\n` +
+                `4. We will activate your premium within 5 minutes!\n\n` +
+                `💰 Money comes directly to your MetaMask wallet!`
+            );
+            
+            // Open Telegram for support contact
+            window.open('https://t.me/ChatteloSupport', '_blank');
         }
 
         function startTextChat() {
