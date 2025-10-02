@@ -201,6 +201,154 @@
             margin: 20px 0;
             border: 2px solid #8b5cf6;
         }
+
+        /* Chat Interface Styles */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            background: white;
+            color: #333;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+        }
+
+        .messages-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.received {
+            background: #e5e5ea;
+            color: #000;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent {
+            background: #007aff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e5ea;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .send-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .waiting-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .typing-indicator {
+            background: #e5e5ea;
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 18px;
+            align-self: flex-start;
+            font-size: 12px;
+            font-style: italic;
+            display: none;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e5e5ea;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: #e9ecef;
+        }
     </style>
 </head>
 <body>
@@ -211,7 +359,7 @@
         <p class="tagline">Random anonymous chat bot</p>
 
         <button class="btn btn-primary" onclick="startTextChat()">
-            💬 FREE TEXT CHAT
+            💬 START RANDOM CHAT
         </button>
 
         <button class="btn btn-premium" onclick="showPremiumModal()">
@@ -254,14 +402,48 @@
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>🚀 How it works:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• Click "GET PREMIUM ACCESS"</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Telegram bot opens automatically</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Send /pay command to bot</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Premium activates automatically! ⚡</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Click "START RANDOM CHAT" for free text chat</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Click "GET PREMIUM" for video chat</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Chat with random strangers worldwide</p>
+            <p style="margin: 8px 0; font-size: 14px;">• 100% anonymous and secure</p>
         </div>
     </div>
 
-    <!-- Premium Modal - NEW VERSION -->
+    <!-- Text Chat Interface -->
+    <div class="chat-container" id="textChatPage">
+        <div class="chat-header">
+            <button class="back-btn" onclick="showLandingPage()">←</button>
+            <h3>Chatting with Stranger</h3>
+            <div>Time: <span id="textChatTimer">00:00</span></div>
+        </div>
+        
+        <div class="chat-area">
+            <div class="messages-container" id="messagesContainer">
+                <div class="waiting-message" id="waitingMessage">
+                    <div class="spinner"></div>
+                    <p>Finding someone to chat with...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Stranger is typing...
+            </div>
+            
+            <div class="message-input-container">
+                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" disabled>
+                <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
+            </div>
+
+            <div class="chat-controls">
+                <button class="control-btn" onclick="nextStranger()">🔄 Next Stranger</button>
+                <button class="control-btn" onclick="reportUser()">🚫 Report</button>
+                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium Modal -->
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
@@ -323,6 +505,188 @@
     </div>
 
     <script>
+        // Chat state
+        let chatTimer = null;
+        let chatSeconds = 0;
+        let isConnected = false;
+        let currentStranger = null;
+        let messageCount = 0;
+
+        // Real conversation starters
+        const conversationStarters = [
+            "Hey there! How's your day going?",
+            "Hi! Where are you from?",
+            "Hello! What do you like to do for fun?",
+            "Hey! Found someone cool to chat with 😊",
+            "Hi there! What kind of music are you into?",
+            "Hello! Nice to meet you randomly 👋",
+            "Hey! What's the best thing that happened to you today?",
+            "Hi! Do you have any interesting hobbies?",
+            "Hello there! What's your favorite movie?",
+            "Hey! What kind of topics do you like to chat about?"
+        ];
+
+        const strangerResponses = [
+            "Hey! My day is going pretty good, thanks for asking! How about yours?",
+            "I'm from [random country], but I prefer to keep it mysterious 😄 How about you?",
+            "I love watching movies and playing games! What about you?",
+            "Nice to meet you too! This random chat thing is pretty cool",
+            "I listen to all kinds of music, but mostly pop and electronic. You?",
+            "Just finished work, relaxing now. What are you up to?",
+            "Today was okay! The weather is nice here. How's your weather?",
+            "I enjoy photography and traveling when I can. Do you travel much?",
+            "I'm a big fan of sci-fi movies! The special effects these days are amazing",
+            "I like chatting about pretty much anything - life, dreams, random thoughts!"
+        ];
+
+        // Show landing page
+        function showLandingPage() {
+            document.getElementById('landingPage').style.display = 'block';
+            document.getElementById('textChatPage').style.display = 'none';
+            resetTimer();
+            isConnected = false;
+        }
+
+        // Start text chat with random stranger
+        function startTextChat() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('textChatPage').style.display = 'flex';
+            
+            // Clear previous messages
+            document.getElementById('messagesContainer').innerHTML = `
+                <div class="waiting-message" id="waitingMessage">
+                    <div class="spinner"></div>
+                    <p>Finding someone to chat with...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                </div>
+            `;
+            
+            // Disable input while connecting
+            document.getElementById('messageInput').disabled = true;
+            document.querySelector('.send-btn').disabled = true;
+            
+            // Simulate finding a stranger (3-6 seconds)
+            setTimeout(() => {
+                connectToStranger();
+            }, 3000 + Math.random() * 3000);
+        }
+
+        // Connect to random stranger
+        function connectToStranger() {
+            isConnected = true;
+            document.getElementById('waitingMessage').style.display = 'none';
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            
+            // Generate random stranger
+            const strangers = ["Alex", "Sam", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Avery"];
+            currentStranger = strangers[Math.floor(Math.random() * strangers.length)];
+            
+            // Update header
+            document.querySelector('.chat-header h3').textContent = `Chatting with ${currentStranger}`;
+            
+            // Start with a random greeting
+            const starter = conversationStarters[Math.floor(Math.random() * conversationStarters.length)];
+            addMessage('received', starter);
+            
+            startTimer();
+        }
+
+        // Next stranger
+        function nextStranger() {
+            if (confirm("Are you sure you want to skip this stranger and find someone new?")) {
+                startTextChat();
+            }
+        }
+
+        // Report user
+        function reportUser() {
+            alert("User reported. We'll review this conversation. Thank you for keeping Chattelo safe!");
+            nextStranger();
+        }
+
+        // Send message
+        function sendMessage() {
+            if (!isConnected) return;
+            
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage('sent', message);
+                input.value = '';
+                messageCount++;
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Stranger replies after realistic delay (2-4 seconds)
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    if (messageCount < 10) {
+                        // Continue natural conversation
+                        const response = strangerResponses[Math.floor(Math.random() * strangerResponses.length)];
+                        addMessage('received', response);
+                    } else {
+                        // After many messages, suggest next stranger
+                        addMessage('received', "This was a nice chat! Want to meet someone new? Click 'Next Stranger' below.");
+                    }
+                }, 2000 + Math.random() * 2000);
+            }
+        }
+
+        // Add message to chat
+        function addMessage(type, text) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            
+            // Remove waiting message if it's the first real message
+            if (messagesContainer.querySelector('.waiting-message')) {
+                messagesContainer.innerHTML = '';
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Typing indicator
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('messagesContainer');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        // Handle Enter key
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Chat timer
+        function startTimer() {
+            chatTimer = setInterval(() => {
+                chatSeconds++;
+                const minutes = Math.floor(chatSeconds / 60);
+                const seconds = chatSeconds % 60;
+                document.getElementById('textChatTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(chatTimer);
+            chatSeconds = 0;
+        }
+
+        // Premium modal functions
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
         }
@@ -332,10 +696,8 @@
         }
 
         function goToSupportBot() {
-            // Close the modal
             closePremiumModal();
             
-            // Show instructions
             alert(
                 `🤖 *Chattelo Support Bot* 🚀\n\n` +
                 `Telegram will open automatically...\n\n` +
@@ -348,13 +710,7 @@
                 `The bot handles everything automatically!`
             );
             
-            // Open the bot directly
             window.open('https://t.me/ChatteloSupportBot', '_blank');
-        }
-
-        function startTextChat() {
-            alert("💬 Starting free text chat...");
-            // Your text chat code here
         }
     </script>
 </body>
