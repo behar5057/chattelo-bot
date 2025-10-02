@@ -201,83 +201,6 @@
             margin: 20px 0;
             border: 2px solid #8b5cf6;
         }
-
-        .wallet-address {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            border: 1px solid #e5e5ea;
-            font-family: monospace;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .copy-btn {
-            background: #8b5cf6;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .payment-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            margin: 10px 0;
-            border: 2px solid #e5e5ea;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .payment-option.selected {
-            border-color: #8b5cf6;
-            background: #f0f8ff;
-        }
-
-        .payment-icon {
-            font-size: 24px;
-            margin-right: 15px;
-        }
-
-        .payment-info {
-            flex: 1;
-            text-align: left;
-        }
-
-        .payment-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .payment-desc {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .network-info {
-            background: #e7f3ff;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 12px;
-            color: #0066cc;
-        }
-
-        .metamask-notice {
-            background: #fef6dd;
-            border: 1px solid #fcd34d;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-size: 12px;
-            color: #92400e;
-        }
     </style>
 </head>
 <body>
@@ -300,10 +223,10 @@
         <div class="pricing-card">
             <h3>🎥 Premium Video Chat</h3>
             <div class="crypto-price">
-                <span class="crypto-icon">₿</span>
+                <span class="crypto-icon">💎</span>
                 <div class="price">$4.99</div>
             </div>
-            <p style="font-size: 14px; opacity: 0.8;">Pay with Ethereum - Static MetaMask Address</p>
+            <p style="font-size: 14px; opacity: 0.8;">Automatic payment system - No manual verification!</p>
             
             <div class="features-list">
                 <div class="feature-item">
@@ -325,193 +248,114 @@
             </div>
             
             <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
-                🔷 PAY WITH ETHEREUM
+                🤖 GET PREMIUM ACCESS
             </button>
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>💰 Accepting:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• Ethereum (ETH) - Static MetaMask Address</p>
-            <p style="margin: 8px 0; font-size: 14px;">• USDT (ERC20) - Same ETH Address</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Permanent address - Never changes</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Works worldwide 🌍</p>
+            <h4>🚀 How it works:</h4>
+            <p style="margin: 8px 0; font-size: 14px;">• Click "GET PREMIUM ACCESS"</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Telegram bot opens automatically</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Send /pay command to bot</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Premium activates automatically! ⚡</p>
         </div>
     </div>
 
-    <!-- Premium Modal -->
+    <!-- Premium Modal - NEW VERSION -->
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closePremiumModal()">×</button>
-            <h2>🔷 Ethereum Payment</h2>
-            <p style="margin: 15px 0; color: #666;">Pay $4.99 with Ethereum</p>
             
+            <div style="text-align: center;">
+                <div style="font-size: 60px; margin: 20px 0;">🤖</div>
+                <h2>🚀 Get Premium Access</h2>
+                <p style="margin: 15px 0; color: #666;">Automatic payment system - No manual verification!</p>
+            </div>
+
             <div class="crypto-payment">
                 <div class="crypto-price">
-                    <span class="crypto-icon">🔷</span>
+                    <span class="crypto-icon">💎</span>
                     <div class="price">$4.99</div>
                 </div>
                 <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
             </div>
 
-            <!-- Payment Options -->
-            <div class="payment-option selected" onclick="selectPayment('eth')" id="ethOption">
-                <div class="payment-icon">🔷</div>
-                <div class="payment-info">
-                    <div class="payment-title">Ethereum (ETH)</div>
-                    <div class="payment-desc">Native Ethereum • Static MetaMask address</div>
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: left;">
+                <h4 style="margin: 0 0 15px 0;">⚡ How it works:</h4>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">1</div>
+                    <span>Click button below</span>
                 </div>
-                <div style="font-weight: bold;">$4.99</div>
-            </div>
-
-            <div class="payment-option" onclick="selectPayment('usdt_erc20')" id="usdtErc20Option">
-                <div class="payment-icon">💎</div>
-                <div class="payment-info">
-                    <div class="payment-title">USDT (ERC20)</div>
-                    <div class="payment-desc">Stablecoin • Same ETH address • ERC20 network</div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">2</div>
+                    <span>Telegram bot opens automatically</span>
                 </div>
-                <div style="font-weight: bold;">$4.99</div>
-            </div>
-
-            <!-- Wallet Address & Network Info -->
-            <div id="paymentDetails">
-                <div style="text-align: left; margin: 20px 0;">
-                    <h4>📥 Send Payment to:</h4>
-                    <div class="wallet-address" id="walletAddress">
-                        0x9e322AF7a08001b53e3FC93bA589cFA15437D74a
-                    </div>
-                    <button class="copy-btn" onclick="copyWalletAddress()">
-                        📋 Copy Address
-                    </button>
-                    
-                    <div class="metamask-notice">
-                        🔒 <strong>Static MetaMask Address</strong> - This address never changes!
-                    </div>
-                    
-                    <div class="network-info" id="networkInfo">
-                        🔹 <strong>Ethereum Network</strong><br>
-                        🔹 Amount: <strong>$4.99 ETH</strong><br>
-                        🔹 Send exact amount only<br>
-                        🔹 Static address - Never changes
-                    </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">3</div>
+                    <span>Send <code>/pay</code> command</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">4</div>
+                    <span>Click payment link & pay</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">5</div>
+                    <span>Premium activates automatically! 🎉</span>
                 </div>
             </div>
 
-            <!-- Payment Instructions -->
-            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
-                <h4 style="margin: 0 0 10px 0;">📋 Payment Steps:</h4>
-                <div id="paymentSteps">
-                    <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
-                    <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
-                    <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
-                    <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                    <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-                </div>
-            </div>
-            
-            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0;" onclick="completePayment()">
-                💎 I HAVE PAID - ACTIVATE ACCESS
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0; padding: 20px; font-size: 18px;" onclick="goToSupportBot()">
+                🤖 OPEN CHATTELO SUPPORT BOT
             </button>
-            
+
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">💡 Why use the bot?</h4>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Automatic payment detection</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Instant premium activation</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ No manual verification needed</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Works 24/7 automatically</p>
+            </div>
+
             <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
                 ❌ Cancel
             </button>
-            
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                🔒 Permanent MetaMask address • No changes • Safe payments
-            </p>
         </div>
     </div>
 
     <script>
-        let selectedPayment = 'eth';
-        
-        // YOUR PERMANENT META MASK ADDRESSES
-        const walletAddresses = {
-            eth: '0x9e322AF7a08001b53e3FC93bA589cFA15437D74a',
-            usdt_erc20: '0x9e322AF7a08001b53e3FC93bA589cFA15437D74a'
-        };
-
-        const networkInfo = {
-            eth: '🔹 <strong>Ethereum Network</strong><br>🔹 Amount: <strong>$4.99 ETH</strong><br>🔹 Send exact amount only<br>🔹 Static MetaMask address',
-            usdt_erc20: '🔹 <strong>ERC20 Network</strong><br>🔹 Amount: <strong>$4.99 USDT</strong><br>🔹 Send exact amount only<br>🔹 Same as ETH address'
-        };
-
-        const paymentSteps = {
-            eth: `
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 worth of ETH</p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-            `,
-            usdt_erc20: `
-                <p style="margin: 5px 0; font-size: 14px;">1. Copy Ethereum address above</p>
-                <p style="margin: 5px 0; font-size: 14px;">2. Send $4.99 USDT via <strong>ERC20 network</strong></p>
-                <p style="margin: 5px 0; font-size: 14px;">3. Wait for confirmation (5-15 minutes)</p>
-                <p style="margin: 5px 0; font-size: 14px;">4. Contact us with transaction hash</p>
-                <p style="margin: 5px 0; font-size: 14px;">5. We activate within 5 minutes!</p>
-            `
-        };
-
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
-            updatePaymentDetails();
         }
 
         function closePremiumModal() {
             document.getElementById('premiumModal').style.display = 'none';
         }
 
-        function selectPayment(method) {
-            selectedPayment = method;
+        function goToSupportBot() {
+            // Close the modal
+            closePremiumModal();
             
-            // Update UI
-            document.getElementById('ethOption').classList.remove('selected');
-            document.getElementById('usdtErc20Option').classList.remove('selected');
-            
-            document.getElementById(method + 'Option').classList.add('selected');
-            updatePaymentDetails();
-        }
-
-        function updatePaymentDetails() {
-            const address = walletAddresses[selectedPayment];
-            document.getElementById('walletAddress').textContent = address;
-            document.getElementById('networkInfo').innerHTML = networkInfo[selectedPayment];
-            document.getElementById('paymentSteps').innerHTML = paymentSteps[selectedPayment];
-        }
-
-        function copyWalletAddress() {
-            const address = walletAddresses[selectedPayment];
-            navigator.clipboard.writeText(address).then(() => {
-                alert('✅ Ethereum address copied!\n\nThis is a STATIC MetaMask address that never changes!');
-            });
-        }
-
-        function completePayment() {
-            const cryptoName = selectedPayment === 'eth' ? 'ETH' : 'USDT (ERC20)';
-            const yourWallet = walletAddresses[selectedPayment];
-            
+            // Show instructions
             alert(
-                `🔷 Payment Instructions:\n\n` +
-                `1. Send $4.99 ${cryptoName} to:\n${yourWallet}\n\n` +
-                `2. After sending, contact us on Telegram:\n` +
-                `@ChatteloSupport\n\n` +
-                `3. Send us the transaction hash\n` +
-                `4. We will activate your premium within 5 minutes!\n\n` +
-                `💰 Money comes directly to your MetaMask wallet!`
+                `🤖 *Chattelo Support Bot* 🚀\n\n` +
+                `Telegram will open automatically...\n\n` +
+                `📋 *What to do next:*\n` +
+                `1. Wait for bot to open\n` +
+                `2. Click "START" or send /start\n` +
+                `3. Send the command: /pay\n` +
+                `4. Click the payment link\n` +
+                `5. Premium activates automatically! ⚡\n\n` +
+                `The bot handles everything automatically!`
             );
             
-            // Open Telegram for support contact
-            window.open('https://t.me/ChatteloSupport', '_blank');
+            // Open the bot directly
+            window.open('https://t.me/ChatteloSupportBot', '_blank');
         }
 
         function startTextChat() {
             alert("💬 Starting free text chat...");
             // Your text chat code here
         }
-
-        // Initialize
-        updatePaymentDetails();
     </script>
 </body>
 </html>
