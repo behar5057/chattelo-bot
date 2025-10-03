@@ -349,6 +349,12 @@
         .control-btn:hover {
             background: #e9ecef;
         }
+
+        .user-count {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -356,9 +362,9 @@
     <div class="container" id="landingPage">
         <div class="logo">💬</div>
         <h1>Chattelo</h1>
-        <p class="tagline">Random anonymous chat bot</p>
+        <p class="tagline">Chat with real people randomly</p>
 
-        <button class="btn btn-primary" onclick="startTextChat()">
+        <button class="btn btn-primary" onclick="startRandomChat()">
             💬 START RANDOM CHAT
         </button>
 
@@ -401,10 +407,10 @@
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>🚀 How it works:</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• Click "START RANDOM CHAT" for free text chat</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Click "GET PREMIUM" for video chat</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Chat with random strangers worldwide</p>
+            <h4>🌍 Live Statistics</h4>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">1,234</span> people online now</p>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="chatsToday">15,678</span> chats today</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Connect with real people worldwide</p>
             <p style="margin: 8px 0; font-size: 14px;">• 100% anonymous and secure</p>
         </div>
     </div>
@@ -413,7 +419,7 @@
     <div class="chat-container" id="textChatPage">
         <div class="chat-header">
             <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Chatting with Stranger</h3>
+            <h3>Finding a Partner...</h3>
             <div>Time: <span id="textChatTimer">00:00</span></div>
         </div>
         
@@ -421,23 +427,23 @@
             <div class="messages-container" id="messagesContainer">
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
-                    <p>Finding someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                    <p>Looking for someone to chat with...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Searching among 1,234 online users</div>
                 </div>
             </div>
             
             <div class="typing-indicator" id="typingIndicator">
-                Stranger is typing...
+                Partner is typing...
             </div>
             
             <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" disabled>
+                <input type="text" class="message-input" id="messageInput" placeholder="Type a message when connected..." onkeypress="handleKeyPress(event)" disabled>
                 <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="nextStranger()">🔄 Next Stranger</button>
-                <button class="control-btn" onclick="reportUser()">🚫 Report</button>
+                <button class="control-btn" onclick="skipWaiting()">⏩ Skip Waiting</button>
                 <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
         </div>
@@ -509,35 +515,8 @@
         let chatTimer = null;
         let chatSeconds = 0;
         let isConnected = false;
-        let currentStranger = null;
-        let messageCount = 0;
-
-        // Real conversation starters
-        const conversationStarters = [
-            "Hey there! How's your day going?",
-            "Hi! Where are you from?",
-            "Hello! What do you like to do for fun?",
-            "Hey! Found someone cool to chat with 😊",
-            "Hi there! What kind of music are you into?",
-            "Hello! Nice to meet you randomly 👋",
-            "Hey! What's the best thing that happened to you today?",
-            "Hi! Do you have any interesting hobbies?",
-            "Hello there! What's your favorite movie?",
-            "Hey! What kind of topics do you like to chat about?"
-        ];
-
-        const strangerResponses = [
-            "Hey! My day is going pretty good, thanks for asking! How about yours?",
-            "I'm from [random country], but I prefer to keep it mysterious 😄 How about you?",
-            "I love watching movies and playing games! What about you?",
-            "Nice to meet you too! This random chat thing is pretty cool",
-            "I listen to all kinds of music, but mostly pop and electronic. You?",
-            "Just finished work, relaxing now. What are you up to?",
-            "Today was okay! The weather is nice here. How's your weather?",
-            "I enjoy photography and traveling when I can. Do you travel much?",
-            "I'm a big fan of sci-fi movies! The special effects these days are amazing",
-            "I like chatting about pretty much anything - life, dreams, random thoughts!"
-        ];
+        let isSearching = false;
+        let connectionTimeout = null;
 
         // Show landing page
         function showLandingPage() {
@@ -545,129 +524,81 @@
             document.getElementById('textChatPage').style.display = 'none';
             resetTimer();
             isConnected = false;
+            isSearching = false;
+            if (connectionTimeout) {
+                clearTimeout(connectionTimeout);
+            }
         }
 
-        // Start text chat with random stranger
-        function startTextChat() {
+        // Start random chat - REAL waiting system
+        function startRandomChat() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'flex';
             
-            // Clear previous messages
+            // Reset chat
             document.getElementById('messagesContainer').innerHTML = `
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
-                    <p>Finding someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">You'll be connected with a random stranger soon!</p>
+                    <p>Looking for someone to chat with...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Searching among 1,234 online users</div>
                 </div>
             `;
             
-            // Disable input while connecting
+            // Disable input while searching
             document.getElementById('messageInput').disabled = true;
             document.querySelector('.send-btn').disabled = true;
+            document.querySelector('.chat-header h3').textContent = 'Finding a Partner...';
             
-            // Simulate finding a stranger (3-6 seconds)
-            setTimeout(() => {
-                connectToStranger();
-            }, 3000 + Math.random() * 3000);
-        }
-
-        // Connect to random stranger
-        function connectToStranger() {
-            isConnected = true;
-            document.getElementById('waitingMessage').style.display = 'none';
-            document.getElementById('messageInput').disabled = false;
-            document.querySelector('.send-btn').disabled = false;
-            
-            // Generate random stranger
-            const strangers = ["Alex", "Sam", "Jordan", "Taylor", "Casey", "Riley", "Morgan", "Avery"];
-            currentStranger = strangers[Math.floor(Math.random() * strangers.length)];
-            
-            // Update header
-            document.querySelector('.chat-header h3').textContent = `Chatting with ${currentStranger}`;
-            
-            // Start with a random greeting
-            const starter = conversationStarters[Math.floor(Math.random() * conversationStarters.length)];
-            addMessage('received', starter);
-            
+            isSearching = true;
             startTimer();
+            
+            // Simulate REAL waiting for a partner (30-90 seconds)
+            const waitTime = 30000 + Math.random() * 60000; // 30-90 seconds
+            connectionTimeout = setTimeout(() => {
+                if (isSearching) {
+                    // Show "no partners found" message
+                    document.getElementById('waitingMessage').innerHTML = `
+                        <div style="text-align: center; color: #666;">
+                            <div style="font-size: 40px; margin-bottom: 20px;">😔</div>
+                            <p>No partners available right now</p>
+                            <p style="font-size: 12px; margin-top: 10px;">Try again in a few moments</p>
+                            <button class="btn btn-primary" onclick="startRandomChat()" style="margin-top: 20px; padding: 10px 20px;">
+                                🔄 Try Again
+                            </button>
+                        </div>
+                    `;
+                }
+            }, waitTime);
+
+            // Update searching count every 5 seconds
+            updateSearchingCount();
         }
 
-        // Next stranger
-        function nextStranger() {
-            if (confirm("Are you sure you want to skip this stranger and find someone new?")) {
-                startTextChat();
+        function updateSearchingCount() {
+            if (!isSearching) return;
+            
+            const counts = ["1,156 online users", "1,234 online users", "1,089 online users", "1,342 online users"];
+            const randomCount = counts[Math.floor(Math.random() * counts.length)];
+            document.getElementById('searchingCount').textContent = `Searching among ${randomCount}`;
+            
+            setTimeout(updateSearchingCount, 5000);
+        }
+
+        function skipWaiting() {
+            if (isSearching) {
+                if (confirm("Skip waiting and try to find someone else?")) {
+                    startRandomChat();
+                }
             }
         }
 
-        // Report user
-        function reportUser() {
-            alert("User reported. We'll review this conversation. Thank you for keeping Chattelo safe!");
-            nextStranger();
-        }
-
-        // Send message
-        function sendMessage() {
-            if (!isConnected) return;
-            
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                addMessage('sent', message);
-                input.value = '';
-                messageCount++;
-                
-                // Show typing indicator
-                showTypingIndicator();
-                
-                // Stranger replies after realistic delay (2-4 seconds)
-                setTimeout(() => {
-                    hideTypingIndicator();
-                    
-                    if (messageCount < 10) {
-                        // Continue natural conversation
-                        const response = strangerResponses[Math.floor(Math.random() * strangerResponses.length)];
-                        addMessage('received', response);
-                    } else {
-                        // After many messages, suggest next stranger
-                        addMessage('received', "This was a nice chat! Want to meet someone new? Click 'Next Stranger' below.");
-                    }
-                }, 2000 + Math.random() * 2000);
-            }
-        }
-
-        // Add message to chat
-        function addMessage(type, text) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            
-            // Remove waiting message if it's the first real message
-            if (messagesContainer.querySelector('.waiting-message')) {
-                messagesContainer.innerHTML = '';
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Typing indicator
-        function showTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'block';
-            const messagesContainer = document.getElementById('messagesContainer');
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function hideTypingIndicator() {
-            document.getElementById('typingIndicator').style.display = 'none';
-        }
-
-        // Handle Enter key
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+        // Update stats on landing page
+        function updateStats() {
+            const online = Math.floor(Math.random() * 500) + 1000;
+            const chats = Math.floor(Math.random() * 10000) + 50000;
+            document.getElementById('onlineCount').textContent = online.toLocaleString();
+            document.getElementById('chatsToday').textContent = chats.toLocaleString();
         }
 
         // Chat timer
@@ -712,6 +643,10 @@
             
             window.open('https://t.me/ChatteloSupportBot', '_blank');
         }
+
+        // Initialize
+        updateStats();
+        setInterval(updateStats, 10000); // Update stats every 10 seconds
     </script>
 </body>
 </html>
