@@ -647,6 +647,19 @@
         // Initialize
         updateStats();
         setInterval(updateStats, 10000); // Update stats every 10 seconds
-    </script>
+    </script> <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxxBuz5BQoQoSZBkvh8VPwxbdJN9LPKtE",
+    authDomain: "chattelo-app.firebaseapp.com",
+    databaseURL: "https://chattelo-app-default-rtdb.firebaseio.com",
+    projectId: "chattelo-app",
+    storageBucket: "chattelo-app.firebasestorage.app",
+    messagingSenderId: "618655750079",
+    appId: "1:618655750079:web:0972d469ea94c8bc2ff30a"
+  };
+  firebase.initializeApp(firebaseConfig);
+</script>
 </body>
 </html>
