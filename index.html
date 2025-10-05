@@ -355,6 +355,14 @@
             opacity: 0.8;
             margin-top: 5px;
         }
+        
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -443,7 +451,7 @@
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="skipWaiting()">⏩ Next Person</button>
+                <button class="control-btn" onclick="skipPerson()">⏩ Next Person</button>
                 <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
         </div>
@@ -537,6 +545,7 @@
         let isSearching = false;
         let currentUserId = null;
         let currentChatRoom = null;
+        let currentPartner = null;
         let connectionTimeout = null;
 
         // Initialize stats
@@ -554,15 +563,7 @@
 
         // Show landing page
         function showLandingPage() {
-            if (currentUserId) {
-                database.ref('onlineUsers/' + currentUserId).remove();
-                database.ref('waitingUsers/' + currentUserId).remove();
-            }
-            if (currentChatRoom) {
-                database.ref('activeChats/' + currentChatRoom).remove();
-                database.ref('chatRooms/' + currentChatRoom).remove();
-            }
-            
+            cleanupUserData();
             document.getElementById('landingPage').style.display = 'block';
             document.getElementById('textChatPage').style.display = 'none';
             resetTimer();
@@ -570,9 +571,22 @@
             isSearching = false;
             currentUserId = null;
             currentChatRoom = null;
+            currentPartner = null;
             
             if (connectionTimeout) {
                 clearTimeout(connectionTimeout);
+            }
+        }
+
+        // Clean up user data
+        function cleanupUserData() {
+            if (currentUserId) {
+                database.ref('onlineUsers/' + currentUserId).remove();
+                database.ref('waitingUsers/' + currentUserId).remove();
+            }
+            if (currentChatRoom) {
+                database.ref('activeChats/' + currentChatRoom).remove();
+                database.ref('chatRooms/' + currentChatRoom).remove();
             }
         }
 
@@ -622,6 +636,7 @@
                     const waitingUserIds = Object.keys(waitingUsers);
                     const randomIndex = Math.floor(Math.random() * waitingUserIds.length);
                     const partnerId = waitingUserIds[randomIndex];
+                    currentPartner = partnerId;
                     
                     // Remove from waiting and create chat room
                     database.ref('waitingUsers/' + partnerId).remove();
@@ -669,6 +684,7 @@
         // Create chat room with partner
         function createChatRoom(partnerId) {
             currentChatRoom = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            currentPartner = partnerId;
             
             // Create the chat room
             database.ref('chatRooms/' + currentChatRoom).set({
@@ -698,19 +714,20 @@
             document.getElementById('messageInput').placeholder = "Type your message...";
             document.getElementById('messageInput').focus();
 
-            // Listen for messages from partner
+            // Listen for ALL messages (FIXED MESSAGE DELIVERY)
             database.ref('chatRooms/' + currentChatRoom + '/messages').on('child_added', (snapshot) => {
                 const message = snapshot.val();
+                // Only show messages from partner (not our own)
                 if (message.sender !== currentUserId) {
                     showMessage(message.text, 'received');
                 }
             });
 
             // Show welcome message
-            showMessage("You are now connected with a random person! Say hello!", 'system');
+            showSystemMessage("You are now connected with a random person! Say hello!");
         }
 
-        // Send message
+        // Send message (FIXED MESSAGE SENDING)
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -736,22 +753,43 @@
             const messagesContainer = document.getElementById('messagesContainer');
             const messageDiv = document.createElement('div');
             
-            if (type === 'system') {
-                messageDiv.style.cssText = 'text-align: center; color: #666; font-style: italic; margin: 10px 0;';
-                messageDiv.textContent = text;
-            } else {
-                messageDiv.className = `message ${type}`;
-                messageDiv.textContent = text;
-            }
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function skipWaiting() {
-            if (isSearching) {
+        // Show system message
+        function showSystemMessage(text) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = 'system-message';
+            messageDiv.textContent = text;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // FIXED SKIP FUNCTION
+        function skipPerson() {
+            if (isConnected) {
+                // User is in active chat - show confirmation
+                if (confirm("Skip this person and find someone new?")) {
+                    showSystemMessage("You skipped this person. Finding someone new...");
+                    cleanupUserData();
+                    setTimeout(() => {
+                        startRandomChat();
+                    }, 1000);
+                }
+            } else if (isSearching) {
+                // User is searching/waiting - skip immediately
+                showSystemMessage("Skipping... Finding new person...");
                 database.ref('waitingUsers/' + currentUserId).remove();
-                startRandomChat();
+                setTimeout(() => {
+                    startRandomChat();
+                }, 500);
             }
         }
 
