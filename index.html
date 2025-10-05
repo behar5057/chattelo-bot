@@ -408,8 +408,8 @@
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>🌍 Live Statistics</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">1,234</span> people online now</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="chatsToday">15,678</span> chats today</p>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online now</p>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="chatsToday">0</span> active chats</p>
             <p style="margin: 8px 0; font-size: 14px;">• Connect with real people worldwide</p>
             <p style="margin: 8px 0; font-size: 14px;">• 100% anonymous and secure</p>
         </div>
@@ -419,7 +419,7 @@
     <div class="chat-container" id="textChatPage">
         <div class="chat-header">
             <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3>Finding a Partner...</h3>
+            <h3 id="chatStatus">Finding a Partner...</h3>
             <div>Time: <span id="textChatTimer">00:00</span></div>
         </div>
         
@@ -429,7 +429,7 @@
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
                     <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
-                    <div class="user-count" id="searchingCount">Searching among 1,234 online users</div>
+                    <div class="user-count" id="searchingCount">Connecting to chat network...</div>
                 </div>
             </div>
             
@@ -443,7 +443,7 @@
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="skipWaiting()">⏩ Skip Waiting</button>
+                <button class="control-btn" onclick="skipWaiting()">⏩ Next Person</button>
                 <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
         </div>
@@ -510,30 +510,79 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxxBuz5BQoQoSZBkvh8VPwxbdJN9LPKtE",
+            authDomain: "chattelo-app.firebaseapp.com",
+            databaseURL: "https://chattelo-app-default-rtdb.firebaseio.com",
+            projectId: "chattelo-app",
+            storageBucket: "chattelo-app.firebasestorage.app",
+            messagingSenderId: "618655750079",
+            appId: "1:618655750079:web:0972d469ea94c8bc2ff30a"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // Chat state
         let chatTimer = null;
         let chatSeconds = 0;
         let isConnected = false;
         let isSearching = false;
+        let currentUserId = null;
+        let currentChatRoom = null;
         let connectionTimeout = null;
+
+        // Initialize stats
+        function initStats() {
+            database.ref('onlineUsers').on('value', (snapshot) => {
+                const onlineCount = snapshot.numChildren();
+                document.getElementById('onlineCount').textContent = onlineCount;
+            });
+            
+            database.ref('activeChats').on('value', (snapshot) => {
+                const activeChats = snapshot.numChildren();
+                document.getElementById('chatsToday').textContent = activeChats;
+            });
+        }
 
         // Show landing page
         function showLandingPage() {
+            if (currentUserId) {
+                database.ref('onlineUsers/' + currentUserId).remove();
+                database.ref('waitingUsers/' + currentUserId).remove();
+            }
+            if (currentChatRoom) {
+                database.ref('activeChats/' + currentChatRoom).remove();
+                database.ref('chatRooms/' + currentChatRoom).remove();
+            }
+            
             document.getElementById('landingPage').style.display = 'block';
             document.getElementById('textChatPage').style.display = 'none';
             resetTimer();
             isConnected = false;
             isSearching = false;
+            currentUserId = null;
+            currentChatRoom = null;
+            
             if (connectionTimeout) {
                 clearTimeout(connectionTimeout);
             }
         }
 
-        // Start random chat - REAL waiting system
+        // Start random chat with REAL user matching
         function startRandomChat() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'flex';
+            
+            // Generate unique user ID
+            currentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             
             // Reset chat
             document.getElementById('messagesContainer').innerHTML = `
@@ -541,64 +590,174 @@
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
                     <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
-                    <div class="user-count" id="searchingCount">Searching among 1,234 online users</div>
+                    <div class="user-count" id="searchingCount">Connecting to chat network...</div>
                 </div>
             `;
             
             // Disable input while searching
             document.getElementById('messageInput').disabled = true;
             document.querySelector('.send-btn').disabled = true;
-            document.querySelector('.chat-header h3').textContent = 'Finding a Partner...';
+            document.getElementById('chatStatus').textContent = 'Finding a Partner...';
             
             isSearching = true;
             startTimer();
             
-            // Simulate REAL waiting for a partner (30-90 seconds)
-            const waitTime = 30000 + Math.random() * 60000; // 30-90 seconds
-            connectionTimeout = setTimeout(() => {
-                if (isSearching) {
-                    // Show "no partners found" message
-                    document.getElementById('waitingMessage').innerHTML = `
-                        <div style="text-align: center; color: #666;">
-                            <div style="font-size: 40px; margin-bottom: 20px;">😔</div>
-                            <p>No partners available right now</p>
-                            <p style="font-size: 12px; margin-top: 10px;">Try again in a few moments</p>
-                            <button class="btn btn-primary" onclick="startRandomChat()" style="margin-top: 20px; padding: 10px 20px;">
-                                🔄 Try Again
-                            </button>
-                        </div>
-                    `;
-                }
-            }, waitTime);
+            // Mark user as online
+            database.ref('onlineUsers/' + currentUserId).set({
+                joined: Date.now(),
+                status: 'searching'
+            });
 
-            // Update searching count every 5 seconds
-            updateSearchingCount();
+            // REAL USER MATCHING SYSTEM
+            findRandomPartner();
         }
 
-        function updateSearchingCount() {
+        // Find random partner from waiting users
+        function findRandomPartner() {
+            database.ref('waitingUsers').once('value').then((snapshot) => {
+                const waitingUsers = snapshot.val();
+                
+                if (waitingUsers && Object.keys(waitingUsers).length > 0) {
+                    // Connect to random waiting user
+                    const waitingUserIds = Object.keys(waitingUsers);
+                    const randomIndex = Math.floor(Math.random() * waitingUserIds.length);
+                    const partnerId = waitingUserIds[randomIndex];
+                    
+                    // Remove from waiting and create chat room
+                    database.ref('waitingUsers/' + partnerId).remove();
+                    createChatRoom(partnerId);
+                } else {
+                    // No one waiting - join waiting queue
+                    joinWaitingQueue();
+                }
+            });
+        }
+
+        // Join waiting queue
+        function joinWaitingQueue() {
+            database.ref('waitingUsers/' + currentUserId).set({
+                joined: Date.now(),
+                waiting: true
+            });
+
+            document.getElementById('searchingCount').textContent = 'Waiting for someone to join...';
+            
+            // Listen for when we get matched
+            database.ref('waitingUsers/' + currentUserId).on('value', (snapshot) => {
+                if (!snapshot.exists() && isSearching) {
+                    // We were removed from queue = we got matched!
+                    findRandomPartner();
+                }
+            });
+
+            // Update waiting stats
+            updateWaitingStats();
+        }
+
+        function updateWaitingStats() {
             if (!isSearching) return;
             
-            const counts = ["1,156 online users", "1,234 online users", "1,089 online users", "1,342 online users"];
-            const randomCount = counts[Math.floor(Math.random() * counts.length)];
-            document.getElementById('searchingCount').textContent = `Searching among ${randomCount}`;
+            database.ref('waitingUsers').once('value').then((snapshot) => {
+                const waitingCount = snapshot.numChildren();
+                document.getElementById('searchingCount').textContent = 
+                    `${waitingCount} people waiting • Looking for partner...`;
+            });
             
-            setTimeout(updateSearchingCount, 5000);
+            setTimeout(updateWaitingStats, 3000);
+        }
+
+        // Create chat room with partner
+        function createChatRoom(partnerId) {
+            currentChatRoom = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            
+            // Create the chat room
+            database.ref('chatRooms/' + currentChatRoom).set({
+                user1: currentUserId,
+                user2: partnerId,
+                created: Date.now(),
+                active: true
+            });
+
+            // Add to active chats
+            database.ref('activeChats/' + currentChatRoom).set(true);
+
+            // Setup chat room
+            setupChatRoom();
+        }
+
+        // Setup chat room for messaging
+        function setupChatRoom() {
+            isSearching = false;
+            isConnected = true;
+            document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
+            document.getElementById('waitingMessage').style.display = 'none';
+            
+            // Enable messaging
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            document.getElementById('messageInput').placeholder = "Type your message...";
+            document.getElementById('messageInput').focus();
+
+            // Listen for messages from partner
+            database.ref('chatRooms/' + currentChatRoom + '/messages').on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                if (message.sender !== currentUserId) {
+                    showMessage(message.text, 'received');
+                }
+            });
+
+            // Show welcome message
+            showMessage("You are now connected with a random person! Say hello!", 'system');
+        }
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text && currentChatRoom) {
+                // Save message to database
+                const messageData = {
+                    sender: currentUserId,
+                    text: text,
+                    timestamp: Date.now()
+                };
+
+                database.ref('chatRooms/' + currentChatRoom + '/messages').push(messageData);
+                
+                // Show my message immediately
+                showMessage(text, 'sent');
+                input.value = '';
+            }
+        }
+
+        // Show message in chat
+        function showMessage(text, type) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            if (type === 'system') {
+                messageDiv.style.cssText = 'text-align: center; color: #666; font-style: italic; margin: 10px 0;';
+                messageDiv.textContent = text;
+            } else {
+                messageDiv.className = `message ${type}`;
+                messageDiv.textContent = text;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function skipWaiting() {
             if (isSearching) {
-                if (confirm("Skip waiting and try to find someone else?")) {
-                    startRandomChat();
-                }
+                database.ref('waitingUsers/' + currentUserId).remove();
+                startRandomChat();
             }
         }
 
         // Update stats on landing page
         function updateStats() {
-            const online = Math.floor(Math.random() * 500) + 1000;
-            const chats = Math.floor(Math.random() * 10000) + 50000;
-            document.getElementById('onlineCount').textContent = online.toLocaleString();
-            document.getElementById('chatsToday').textContent = chats.toLocaleString();
+            // Stats are now real-time from Firebase
         }
 
         // Chat timer
@@ -644,22 +803,14 @@
             window.open('https://t.me/ChatteloSupportBot', '_blank');
         }
 
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
         // Initialize
-        updateStats();
-        setInterval(updateStats, 10000); // Update stats every 10 seconds
-    </script> <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBxxBuz5BQoQoSZBkvh8VPwxbdJN9LPKtE",
-    authDomain: "chattelo-app.firebaseapp.com",
-    databaseURL: "https://chattelo-app-default-rtdb.firebaseio.com",
-    projectId: "chattelo-app",
-    storageBucket: "chattelo-app.firebasestorage.app",
-    messagingSenderId: "618655750079",
-    appId: "1:618655750079:web:0972d469ea94c8bc2ff30a"
-  };
-  firebase.initializeApp(firebaseConfig);
-</script>
+        initStats();
+    </script>
 </body>
 </html>
