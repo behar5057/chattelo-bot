@@ -75,6 +75,134 @@
             box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4);
         }
 
+        .btn-premium {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .premium-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ffd700;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            transform: rotate(15deg);
+        }
+
+        .btn-crypto {
+            background: linear-gradient(135deg, #f7931a, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-crypto:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .crypto-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .crypto-icon {
+            font-size: 24px;
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .premium-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .premium-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            color: #333;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .crypto-payment {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #8b5cf6;
+        }
+
+        /* Chat Interface Styles */
         .chat-container {
             display: none;
             flex-direction: column;
@@ -188,13 +316,15 @@
             100% { transform: rotate(360deg); }
         }
 
-        .system-message {
-            text-align: center;
+        .typing-indicator {
+            background: #e5e5ea;
             color: #666;
-            font-style: italic;
-            margin: 10px 0;
+            padding: 8px 16px;
+            border-radius: 18px;
+            align-self: flex-start;
             font-size: 12px;
-            padding: 8px;
+            font-style: italic;
+            display: none;
         }
 
         .chat-controls {
@@ -215,6 +345,25 @@
             cursor: pointer;
             font-size: 14px;
         }
+
+        .control-btn:hover {
+            background: #e9ecef;
+        }
+
+        .user-count {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+            font-size: 12px;
+            padding: 8px;
+        }
     </style>
 </head>
 <body>
@@ -228,10 +377,50 @@
             💬 START RANDOM CHAT
         </button>
 
+        <button class="btn btn-premium" onclick="showPremiumModal()">
+            🎥 PREMIUM VIDEO CHAT
+            <div class="premium-badge">PRO</div>
+        </button>
+
+        <!-- Pricing Card -->
+        <div class="pricing-card">
+            <h3>🎥 Premium Video Chat</h3>
+            <div class="crypto-price">
+                <span class="crypto-icon">💎</span>
+                <div class="price">$4.99</div>
+            </div>
+            <p style="font-size: 14px; opacity: 0.8;">Automatic payment system - No manual verification!</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>HD Video Calls</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>No Ads</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>Priority Matching</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>Unlimited Time</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
+                🤖 GET PREMIUM ACCESS
+            </button>
+        </div>
+
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>🌍 Live Statistics</h4>
             <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online now</p>
             <p style="margin: 8px 0; font-size: 14px;">• <span id="chatsToday">0</span> active chats</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Connect with real people worldwide</p>
+            <p style="margin: 8px 0; font-size: 14px;">• 100% anonymous and secure</p>
         </div>
     </div>
 
@@ -248,8 +437,13 @@
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;" id="searchingCount">Connecting to chat network...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Connecting to chat network...</div>
                 </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                Partner is typing...
             </div>
             
             <div class="message-input-container">
@@ -259,8 +453,69 @@
 
             <div class="chat-controls">
                 <button class="control-btn" onclick="skipPerson()">⏩ Next Person</button>
-                <button class="control-btn" onclick="showLandingPage()">🏠 Home</button>
+                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Premium Modal -->
+    <div class="premium-overlay" id="premiumModal">
+        <div class="premium-modal">
+            <button class="close-btn" onclick="closePremiumModal()">×</button>
+            
+            <div style="text-align: center;">
+                <div style="font-size: 60px; margin: 20px 0;">🤖</div>
+                <h2>🚀 Get Premium Access</h2>
+                <p style="margin: 15px 0; color: #666;">Automatic payment system - No manual verification!</p>
+            </div>
+
+            <div class="crypto-payment">
+                <div class="crypto-price">
+                    <span class="crypto-icon">💎</span>
+                    <div class="price">$4.99</div>
+                </div>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
+            </div>
+
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: left;">
+                <h4 style="margin: 0 0 15px 0;">⚡ How it works:</h4>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">1</div>
+                    <span>Click button below</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">2</div>
+                    <span>Telegram bot opens automatically</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">3</div>
+                    <span>Send <code>/pay</code> command</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">4</div>
+                    <span>Click payment link & pay</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">5</div>
+                    <span>Premium activates automatically! 🎉</span>
+                </div>
+            </div>
+
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0; padding: 20px; font-size: 18px;" onclick="goToSupportBot()">
+                🤖 OPEN CHATTELO SUPPORT BOT
+            </button>
+
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">💡 Why use the bot?</h4>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Automatic payment detection</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Instant premium activation</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ No manual verification needed</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Works 24/7 automatically</p>
+            </div>
+
+            <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
+                ❌ Cancel
+            </button>
         </div>
     </div>
 
@@ -284,60 +539,64 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Simple state management
-        let currentUserId = null;
-        let currentRoomId = null;
+        // Chat state
         let chatTimer = null;
         let chatSeconds = 0;
+        let currentUserId = null;
+        let currentRoomId = null;
+        let isConnected = false;
+        let isSearching = false;
 
-        // Initialize
-        function init() {
-            updateStats();
-        }
-
-        function updateStats() {
-            database.ref('users').on('value', (snapshot) => {
-                const userCount = snapshot.numChildren();
-                document.getElementById('onlineCount').textContent = userCount;
+        // Initialize stats
+        function initStats() {
+            database.ref('onlineUsers').on('value', (snapshot) => {
+                const onlineCount = snapshot.numChildren();
+                document.getElementById('onlineCount').textContent = onlineCount;
             });
             
-            database.ref('rooms').on('value', (snapshot) => {
-                const roomCount = snapshot.numChildren();
-                document.getElementById('chatsToday').textContent = roomCount;
+            database.ref('activeChats').on('value', (snapshot) => {
+                const activeChats = snapshot.numChildren();
+                document.getElementById('chatsToday').textContent = activeChats;
             });
         }
 
+        // Show landing page
         function showLandingPage() {
-            cleanup();
+            cleanupUserData();
             document.getElementById('landingPage').style.display = 'block';
             document.getElementById('textChatPage').style.display = 'none';
             resetTimer();
-        }
-
-        function cleanup() {
-            if (currentUserId) {
-                database.ref('users/' + currentUserId).remove();
-                database.ref('waiting/' + currentUserId).remove();
-            }
-            if (currentRoomId) {
-                database.ref('rooms/' + currentRoomId).remove();
-            }
+            isConnected = false;
+            isSearching = false;
             currentUserId = null;
             currentRoomId = null;
         }
 
-        // SUPER SIMPLE MATCHING SYSTEM
+        // Clean up user data
+        function cleanupUserData() {
+            if (currentUserId) {
+                database.ref('onlineUsers/' + currentUserId).remove();
+                database.ref('waitingUsers/' + currentUserId).remove();
+            }
+            if (currentRoomId) {
+                database.ref('activeChats/' + currentRoomId).remove();
+                database.ref('chatRooms/' + currentRoomId).remove();
+            }
+        }
+
+        // Start random chat
         function startRandomChat() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'flex';
             
-            currentUserId = 'user_' + Date.now();
+            currentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             
             document.getElementById('messagesContainer').innerHTML = `
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;" id="searchingCount">Searching for partners...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Connecting to chat network...</div>
                 </div>
             `;
             
@@ -345,73 +604,84 @@
             document.querySelector('.send-btn').disabled = true;
             document.getElementById('chatStatus').textContent = 'Finding a Partner...';
             
+            isSearching = true;
             startTimer();
             
-            // Add to users list
-            database.ref('users/' + currentUserId).set({
-                online: true,
-                joined: Date.now()
+            // Mark user as online
+            database.ref('onlineUsers/' + currentUserId).set({
+                joined: Date.now(),
+                status: 'searching'
             });
 
-            // SIMPLE MATCHING: Check for waiting users every 2 seconds
+            // SIMPLE WORKING MATCHING SYSTEM
             findPartner();
         }
 
+        // Find partner - SIMPLE AND WORKING
         function findPartner() {
-            database.ref('waiting').once('value').then((snapshot) => {
-                const waiting = snapshot.val();
+            // Add to waiting list
+            database.ref('waitingUsers/' + currentUserId).set({
+                joined: Date.now(),
+                waiting: true
+            });
+
+            // Check for partners immediately
+            checkForPartners();
+        }
+
+        function checkForPartners() {
+            if (!isSearching) return;
+
+            database.ref('waitingUsers').once('value').then((snapshot) => {
+                const waitingUsers = snapshot.val();
                 
-                if (waiting) {
-                    const waitingIds = Object.keys(waiting);
-                    if (waitingIds.length > 0) {
-                        const partnerId = waitingIds[0];
-                        connectUsers(partnerId);
-                        return;
+                if (waitingUsers) {
+                    const userIds = Object.keys(waitingUsers);
+                    // Remove ourselves from the list
+                    const otherUsers = userIds.filter(id => id !== currentUserId);
+                    
+                    if (otherUsers.length > 0) {
+                        // Found a partner! Connect with the first one
+                        const partnerId = otherUsers[0];
+                        connectWithPartner(partnerId);
+                    } else {
+                        // No partners yet, update status and check again
+                        document.getElementById('searchingCount').textContent = 
+                            `Waiting for someone... (${userIds.length} user online)`;
+                        setTimeout(checkForPartners, 2000);
                     }
                 }
-                
-                // No one waiting - join waiting list
-                database.ref('waiting/' + currentUserId).set({
-                    waiting: true,
-                    time: Date.now()
-                });
-                
-                document.getElementById('searchingCount').textContent = 'Waiting for someone to join...';
-                
-                // Listen for when we get a partner
-                database.ref('waiting/' + currentUserId).on('value', (snapshot) => {
-                    if (!snapshot.exists()) {
-                        // We were removed = we got a partner!
-                        findPartner();
-                    }
-                });
-                
-                // Keep checking for new users
-                setTimeout(findPartner, 2000);
             });
         }
 
-        function connectUsers(partnerId) {
+        function connectWithPartner(partnerId) {
             // Remove both from waiting
-            database.ref('waiting/' + currentUserId).remove();
-            database.ref('waiting/' + partnerId).remove();
+            database.ref('waitingUsers/' + currentUserId).remove();
+            database.ref('waitingUsers/' + partnerId).remove();
             
-            // Create room
+            // Create chat room
             currentRoomId = 'room_' + Date.now();
-            database.ref('rooms/' + currentRoomId).set({
+            database.ref('chatRooms/' + currentRoomId).set({
                 user1: currentUserId,
                 user2: partnerId,
-                created: Date.now()
+                created: Date.now(),
+                active: true
             });
-            
-            // Start chat
-            startChat();
+
+            // Add to active chats
+            database.ref('activeChats/' + currentRoomId).set(true);
+
+            // Start the chat
+            startChatSession();
         }
 
-        function startChat() {
-            document.getElementById('chatStatus').textContent = 'Connected!';
+        function startChatSession() {
+            isSearching = false;
+            isConnected = true;
+            document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
             document.getElementById('waitingMessage').style.display = 'none';
             
+            // Enable messaging
             document.getElementById('messageInput').disabled = false;
             document.querySelector('.send-btn').disabled = false;
             document.getElementById('messageInput').placeholder = "Type your message...";
@@ -419,62 +689,73 @@
 
             // Clear and show welcome
             document.getElementById('messagesContainer').innerHTML = '';
-            showSystemMessage("🎉 Connected! Start chatting!");
+            showSystemMessage("🎉 Connected with a random person! Say hello!");
 
-            // Listen for ALL messages in this room
-            database.ref('rooms/' + currentRoomId + '/messages').on('child_added', (snapshot) => {
-                const msg = snapshot.val();
-                if (msg && msg.sender && msg.text) {
-                    if (msg.sender !== currentUserId) {
-                        showMessage(msg.text, 'received');
+            // Listen for messages - SIMPLE AND WORKING
+            database.ref('chatRooms/' + currentRoomId + '/messages').on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                if (message && message.sender && message.text) {
+                    // Only show messages from partner
+                    if (message.sender !== currentUserId) {
+                        showMessage(message.text, 'received');
                     }
                 }
             });
         }
 
+        // Send message
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (text && currentRoomId) {
-                // Show immediately
+                // Show my message immediately
                 showMessage(text, 'sent');
                 
                 // Save to database
-                database.ref('rooms/' + currentRoomId + '/messages').push({
+                database.ref('chatRooms/' + currentRoomId + '/messages').push({
                     sender: currentUserId,
                     text: text,
-                    time: Date.now()
+                    timestamp: Date.now()
                 });
                 
                 input.value = '';
             }
         }
 
+        // Show message in chat
         function showMessage(text, type) {
-            const container = document.getElementById('messagesContainer');
-            const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.textContent = text;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
+        // Show system message
         function showSystemMessage(text) {
-            const container = document.getElementById('messagesContainer');
-            const div = document.createElement('div');
-            div.className = 'system-message';
-            div.textContent = text;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = 'system-message';
+            messageDiv.textContent = text;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function skipPerson() {
-            showSystemMessage("🔄 Finding new person...");
-            cleanup();
-            setTimeout(startRandomChat, 500);
+            showSystemMessage("🔄 Finding someone new...");
+            cleanupUserData();
+            setTimeout(() => {
+                startRandomChat();
+            }, 1000);
         }
 
+        // Chat timer
         function startTimer() {
             resetTimer();
             chatTimer = setInterval(() => {
@@ -487,16 +768,47 @@
         }
 
         function resetTimer() {
-            if (chatTimer) clearInterval(chatTimer);
+            if (chatTimer) {
+                clearInterval(chatTimer);
+            }
             chatSeconds = 0;
         }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') sendMessage();
+        // Premium modal functions - KEPT ALL YOUR ORIGINAL CODE
+        function showPremiumModal() {
+            document.getElementById('premiumModal').style.display = 'flex';
         }
 
-        // Start the app
-        init();
+        function closePremiumModal() {
+            document.getElementById('premiumModal').style.display = 'none';
+        }
+
+        function goToSupportBot() {
+            closePremiumModal();
+            
+            alert(
+                `🤖 *Chattelo Support Bot* 🚀\n\n` +
+                `Telegram will open automatically...\n\n` +
+                `📋 *What to do next:*\n` +
+                `1. Wait for bot to open\n` +
+                `2. Click "START" or send /start\n` +
+                `3. Send the command: /pay\n` +
+                `4. Click the payment link\n` +
+                `5. Premium activates automatically! ⚡\n\n` +
+                `The bot handles everything automatically!`
+            );
+            
+            window.open('https://t.me/ChatteloSupportBot', '_blank');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Initialize
+        initStats();
     </script>
 </body>
 </html>
