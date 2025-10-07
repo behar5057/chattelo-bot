@@ -5,365 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chattelo - Random Anonymous Chat</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 80px;
-            margin: 30px 0 10px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .tagline {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            margin: 15px 0;
-            border: none;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: #4cd964;
-            color: white;
-            box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #44c554;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4);
-        }
-
-        .btn-premium {
-            background: linear-gradient(135deg, #ff6b6b, #ffa726);
-            color: white;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-premium:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
-        }
-
-        .premium-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ffd700;
-            color: #000;
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-            transform: rotate(15deg);
-        }
-
-        .btn-crypto {
-            background: linear-gradient(135deg, #f7931a, #8b5cf6);
-            color: white;
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-        }
-
-        .btn-crypto:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
-        }
-
-        .pricing-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 25px;
-            border-radius: 20px;
-            margin: 20px 0;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .price {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 10px 0;
-            background: linear-gradient(135deg, #ff6b6b, #ffa726);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .crypto-price {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .crypto-icon {
-            font-size: 24px;
-        }
-
-        .features-list {
-            text-align: left;
-            margin: 20px 0;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            margin: 12px 0;
-            font-size: 14px;
-        }
-
-        .feature-icon {
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .premium-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .premium-modal {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 350px;
-            color: #333;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .crypto-payment {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 2px solid #8b5cf6;
-        }
-
-        /* Chat Interface Styles */
-        .chat-container {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-            background: white;
-            color: #333;
-        }
-
-        .chat-header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8f9fa;
-        }
-
-        .messages-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message.received {
-            background: #e5e5ea;
-            color: #000;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.sent {
-            background: #007aff;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-input-container {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e5e5ea;
-            display: flex;
-            gap: 10px;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e5e5ea;
-            border-radius: 20px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .send-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .waiting-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .typing-indicator {
-            background: #e5e5ea;
-            color: #666;
-            padding: 8px 16px;
-            border-radius: 18px;
-            align-self: flex-start;
-            font-size: 12px;
-            font-style: italic;
-            display: none;
-        }
-
-        .chat-controls {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e5e5ea;
-        }
-
-        .control-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #f8f9fa;
-            color: #333;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .control-btn:hover {
-            background: #e9ecef;
-        }
-
-        .user-count {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        .system-message {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
-            font-size: 12px;
-            padding: 8px;
-        }
+        /* KEEP ALL YOUR EXISTING STYLES - THEY ARE PERFECT */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
+        .container { max-width: 400px; margin: 0 auto; padding: 20px; text-align: center; }
+        .logo { font-size: 80px; margin: 30px 0 10px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; }
+        .tagline { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
+        .btn { display: block; width: 100%; padding: 18px; margin: 15px 0; border: none; border-radius: 15px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; text-align: center; }
+        .btn-primary { background: #4cd964; color: white; box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3); }
+        .btn-primary:hover { background: #44c554; transform: translateY(-2px); box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4); }
+        .btn-premium { background: linear-gradient(135deg, #ff6b6b, #ffa726); color: white; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); position: relative; overflow: hidden; }
+        .btn-premium:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4); }
+        .premium-badge { position: absolute; top: -8px; right: -8px; background: #ffd700; color: #000; padding: 4px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; transform: rotate(15deg); }
+        .btn-crypto { background: linear-gradient(135deg, #f7931a, #8b5cf6); color: white; box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3); }
+        .btn-crypto:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4); }
+        .pricing-card { background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 20px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .price { font-size: 36px; font-weight: bold; margin: 10px 0; background: linear-gradient(135deg, #ff6b6b, #ffa726); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .crypto-price { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; }
+        .crypto-icon { font-size: 24px; }
+        .features-list { text-align: left; margin: 20px 0; }
+        .feature-item { display: flex; align-items: center; margin: 12px 0; font-size: 14px; }
+        .feature-icon { margin-right: 10px; font-size: 16px; }
+        .premium-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .premium-modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 350px; color: #333; max-height: 90vh; overflow-y: auto; }
+        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+        .crypto-payment { background: #f8f9fa; padding: 20px; border-radius: 15px; margin: 20px 0; border: 2px solid #8b5cf6; }
+        .chat-container { display: none; flex-direction: column; height: 100vh; background: white; color: #333; }
+        .chat-header { background: #667eea; color: white; padding: 20px; text-align: center; position: relative; }
+        .back-btn { position: absolute; left: 20px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f8f9fa; }
+        .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.4; }
+        .message.received { background: #e5e5ea; color: #000; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.sent { background: #007aff; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .message-input-container { padding: 15px; background: white; border-top: 1px solid #e5e5ea; display: flex; gap: 10px; }
+        .message-input { flex: 1; padding: 12px 16px; border: 1px solid #e5e5ea; border-radius: 20px; font-size: 14px; outline: none; }
+        .send-btn { background: #007aff; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 18px; cursor: pointer; }
+        .waiting-message { text-align: center; padding: 40px 20px; color: #666; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .typing-indicator { background: #e5e5ea; color: #666; padding: 8px 16px; border-radius: 18px; align-self: flex-start; font-size: 12px; font-style: italic; display: none; }
+        .chat-controls { display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #e5e5ea; }
+        .control-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #f8f9fa; color: #333; cursor: pointer; font-size: 14px; }
+        .control-btn:hover { background: #e9ecef; }
+        .user-count { font-size: 12px; opacity: 0.8; margin-top: 5px; }
+        .system-message { text-align: center; color: #666; font-style: italic; margin: 10px 0; font-size: 12px; padding: 8px; }
     </style>
 </head>
 <body>
@@ -619,72 +307,57 @@
                 status: 'searching'
             });
 
-            // REAL USER MATCHING SYSTEM
-            findRandomPartner();
+            // SIMPLE BUT EFFECTIVE MATCHING SYSTEM
+            findPartnerSimple();
         }
 
-        // Find random partner from waiting users
-        function findRandomPartner() {
+        // SIMPLE MATCHING SYSTEM THAT ACTUALLY WORKS
+        function findPartnerSimple() {
+            // First, add ourselves to waiting list
+            database.ref('waitingUsers/' + currentUserId).set({
+                joined: Date.now(),
+                timestamp: Date.now()
+            });
+
+            // Then immediately check for partners
+            checkForPartners();
+        }
+
+        function checkForPartners() {
+            if (!isSearching) return;
+
             database.ref('waitingUsers').once('value').then((snapshot) => {
                 const waitingUsers = snapshot.val();
                 
-                if (waitingUsers && Object.keys(waitingUsers).length > 0) {
-                    // Connect to random waiting user
-                    const waitingUserIds = Object.keys(waitingUsers);
-                    const randomIndex = Math.floor(Math.random() * waitingUserIds.length);
-                    const partnerId = waitingUserIds[randomIndex];
-                    currentPartner = partnerId;
+                if (waitingUsers) {
+                    const userList = Object.keys(waitingUsers);
                     
-                    // Remove from waiting and create chat room
-                    database.ref('waitingUsers/' + partnerId).remove();
-                    createChatRoom(partnerId);
-                } else {
-                    // No one waiting - join waiting queue
-                    joinWaitingQueue();
+                    // Remove ourselves from the list
+                    const otherUsers = userList.filter(userId => userId !== currentUserId);
+                    
+                    if (otherUsers.length > 0) {
+                        // Found someone! Connect with the first available user
+                        const partnerId = otherUsers[0];
+                        connectWithPartner(partnerId);
+                    } else {
+                        // No one else waiting, keep checking
+                        document.getElementById('searchingCount').textContent = 
+                            `Waiting for someone to join... (${userList.length} user online)`;
+                        setTimeout(checkForPartners, 2000); // Check again in 2 seconds
+                    }
                 }
             });
         }
 
-        // Join waiting queue
-        function joinWaitingQueue() {
-            database.ref('waitingUsers/' + currentUserId).set({
-                joined: Date.now(),
-                waiting: true
-            });
-
-            document.getElementById('searchingCount').textContent = 'Waiting for someone to join...';
+        function connectWithPartner(partnerId) {
+            // Remove both users from waiting
+            database.ref('waitingUsers/' + currentUserId).remove();
+            database.ref('waitingUsers/' + partnerId).remove();
             
-            // Listen for when we get matched
-            const waitingRef = database.ref('waitingUsers/' + currentUserId);
-            waitingRef.on('value', (snapshot) => {
-                if (!snapshot.exists() && isSearching) {
-                    // We were removed from queue = we got matched!
-                    findRandomPartner();
-                }
-            });
-
-            // Update waiting stats
-            updateWaitingStats();
-        }
-
-        function updateWaitingStats() {
-            if (!isSearching) return;
-            
-            database.ref('waitingUsers').once('value').then((snapshot) => {
-                const waitingCount = snapshot.numChildren();
-                document.getElementById('searchingCount').textContent = 
-                    `${waitingCount} people waiting • Looking for partner...`;
-            });
-            
-            setTimeout(updateWaitingStats, 3000);
-        }
-
-        // Create chat room with partner
-        function createChatRoom(partnerId) {
-            currentChatRoom = 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             currentPartner = partnerId;
+            currentChatRoom = 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             
-            // Create the chat room
+            // Create chat room
             database.ref('chatRooms/' + currentChatRoom).set({
                 user1: currentUserId,
                 user2: partnerId,
@@ -699,12 +372,11 @@
             // Add to active chats
             database.ref('activeChats/' + currentChatRoom).set(true);
 
-            // Setup chat room
-            setupChatRoom();
+            // Start the chat
+            startChatSession();
         }
 
-        // Setup chat room for messaging
-        function setupChatRoom() {
+        function startChatSession() {
             isSearching = false;
             isConnected = true;
             document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
@@ -718,24 +390,20 @@
 
             // Clear previous messages and show welcome
             document.getElementById('messagesContainer').innerHTML = '';
-            showSystemMessage("🔗 Connected with a random person! Say hello!");
+            showSystemMessage("🎉 Connected with a random person! Say hello!");
 
-            // Listen for ALL messages (FIXED - SIMPLIFIED APPROACH)
+            // Listen for messages
             database.ref('chatRooms/' + currentChatRoom + '/messages').on('child_added', (snapshot) => {
                 const messageData = snapshot.val();
                 if (messageData && messageData.sender && messageData.text) {
-                    if (messageData.sender === currentUserId) {
-                        // This is our own message - we already showed it
-                        return;
-                    } else {
-                        // This is partner's message - show it
+                    if (messageData.sender !== currentUserId) {
                         showMessage(messageData.text, 'received');
                     }
                 }
             });
         }
 
-        // Send message (FIXED - SIMPLIFIED)
+        // Send message
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
@@ -780,7 +448,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // FIXED SKIP FUNCTION - SIMPLIFIED
+        // Skip function
         function skipPerson() {
             showSystemMessage("🔄 Finding someone new...");
             cleanupUserData();
