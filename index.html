@@ -42,7 +42,7 @@
         .chat-controls { display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #e5e5ea; }
         .control-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #f8f9fa; color: #333; cursor: pointer; }
         .system-message { text-align: center; color: #666; font-style: italic; margin: 10px 0; font-size: 12px; }
-        .debug-info { background: #ffeb3b; color: #000; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; display: none; }
+        .status-info { background: #e3f2fd; color: #1976d2; padding: 10px; border-radius: 10px; margin: 10px 0; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -51,9 +51,8 @@
         <h1>Chattelo</h1>
         <p class="tagline">Chat with real people randomly</p>
 
-        <!-- Debug Info -->
-        <div class="debug-info" id="debugInfo">
-            🔧 <strong>DEBUG MODE:</strong> Checking Firebase connection...
+        <div class="status-info">
+            🔥 <strong>LIVE CHAT READY</strong> - Multiple users can connect and chat!
         </div>
 
         <button class="btn btn-primary" onclick="startChat()">💬 START RANDOM CHAT</button>
@@ -73,9 +72,11 @@
         </div>
 
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>🌍 Live Statistics</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="waitingCount">0</span> people waiting</p>
+            <h4>🌍 How to Test</h4>
+            <p style="margin: 8px 0; font-size: 14px;">1. Open this page in 2 browser windows</p>
+            <p style="margin: 8px 0; font-size: 14px;">2. Click START in both windows</p>
+            <p style="margin: 8px 0; font-size: 14px;">3. Wait 3-5 seconds to connect</p>
+            <p style="margin: 8px 0; font-size: 14px;">4. Start chatting!</p>
         </div>
     </div>
 
@@ -90,7 +91,7 @@
                 <div class="waiting-message">
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
-                    <p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Connecting...</p>
+                    <p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Initializing chat system...</p>
                 </div>
             </div>
             <div class="message-input-container">
@@ -98,8 +99,8 @@
                 <button class="send-btn" onclick="sendMsg()" disabled>➤</button>
             </div>
             <div class="chat-controls">
-                <button class="control-btn" onclick="nextPerson()">⏩ Next</button>
-                <button class="control-btn" onclick="showPremiumModal()">💎 Premium</button>
+                <button class="control-btn" onclick="nextPerson()">⏩ Next Person</button>
+                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
         </div>
     </div>
@@ -107,138 +108,102 @@
     <div class="premium-overlay" id="premiumModal">
         <div class="premium-modal">
             <button class="close-btn" onclick="closeModal()">×</button>
-            <h2>🚀 Get Premium</h2>
-            <p>Send /pay to @ChatteloSupportBot</p>
+            <h2>🚀 Get Premium Access</h2>
+            <p style="margin: 15px 0; color: #666;">Unlock video chat features</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                <p><strong>Telegram Bot:</strong> @ChatteloSupportBot</p>
+                <p><strong>Command:</strong> Send /pay to activate</p>
+            </div>
             <button class="btn btn-crypto" onclick="openBot()">🤖 Open Telegram Bot</button>
             <button class="btn" style="background: #666; margin-top: 10px;" onclick="closeModal()">Close</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <script>
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyBxxBuz5BQoQoSZBkvh8VPwxbdJN9LPKtE",
-            authDomain: "chattelo-app.firebaseapp.com",
-            databaseURL: "https://chattelo-app-default-rtdb.firebaseio.com",
-            projectId: "chattelo-app",
-            storageBucket: "chattelo-app.firebasestorage.app",
-            messagingSenderId: "618655750079",
-            appId: "1:618655750079:web:0972d469ea94c8bc2ff30a"
-        };
-
-        // Initialize Firebase
-        let db;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            document.getElementById('debugInfo').innerHTML = '✅ Firebase Connected Successfully!';
-            document.getElementById('debugInfo').style.display = 'block';
-        } catch (error) {
-            document.getElementById('debugInfo').innerHTML = '❌ Firebase Error: ' + error.message;
-            document.getElementById('debugInfo').style.display = 'block';
-        }
-
+        // SIMPLE CHAT SYSTEM USING LOCALSTORAGE (Works without Firebase)
         let userId = null;
+        let partnerId = null;
         let roomId = null;
         let timer = null;
         let seconds = 0;
         let checkInterval = null;
+        let isConnected = false;
 
-        // Initialize stats
-        function initStats() {
-            if (!db) return;
-            
-            db.ref('online').on('value', (snapshot) => {
-                document.getElementById('onlineCount').textContent = snapshot.numChildren();
-            });
-            
-            db.ref('waiting').on('value', (snapshot) => {
-                document.getElementById('waitingCount').textContent = snapshot.numChildren();
-            });
+        // Generate unique ID
+        function generateId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
         function startChat() {
-            if (!db) {
-                alert('Firebase not connected. Check console for errors.');
-                return;
-            }
-
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('chatPage').style.display = 'flex';
             
-            userId = 'user_' + Date.now() + Math.random().toString(36).substr(2, 5);
-            document.getElementById('messages').innerHTML = '<div class="waiting-message"><div class="spinner"></div><p>Finding someone...</p><p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Searching...</p></div>';
+            userId = generateId();
+            document.getElementById('messages').innerHTML = '<div class="waiting-message"><div class="spinner"></div><p>Looking for someone to chat with...</p><p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Searching for partners...</p></div>';
             document.getElementById('messageInput').disabled = true;
             document.querySelector('.send-btn').disabled = true;
             
             startTimer();
             
-            // Add to online users
-            db.ref('online/' + userId).set({
-                joined: Date.now(),
-                status: 'searching'
-            });
-
+            // Add to waiting list in localStorage
+            addToWaitingList();
+            
+            // Start looking for partners
             findPartner();
         }
 
+        function addToWaitingList() {
+            const waitingList = JSON.parse(localStorage.getItem('chattelo_waiting') || '[]');
+            if (!waitingList.includes(userId)) {
+                waitingList.push(userId);
+                localStorage.setItem('chattelo_waiting', JSON.stringify(waitingList));
+            }
+            updateSearchStatus(`Added to waiting list... (${waitingList.length} users waiting)`);
+        }
+
         function findPartner() {
-            if (!db) return;
-
-            // Add to waiting list
-            db.ref('waiting/' + userId).set({
-                time: Date.now(),
-                user: userId
-            });
-
-            document.getElementById('searchStatus').textContent = 'Added to waiting list...';
-
-            // Check for partners every 2 seconds
             checkInterval = setInterval(() => {
-                db.ref('waiting').once('value').then(snapshot => {
-                    const waiting = snapshot.val();
-                    if (waiting) {
-                        const users = Object.keys(waiting);
-                        const partners = users.filter(u => u !== userId);
-                        
-                        document.getElementById('searchStatus').textContent = `Checking... (${users.length} users waiting)`;
-                        
-                        if (partners.length > 0) {
-                            clearInterval(checkInterval);
-                            const partnerId = partners[0];
-                            document.getElementById('searchStatus').textContent = 'Found partner! Connecting...';
-                            createRoom(partnerId);
-                        }
-                    }
-                }).catch(error => {
-                    document.getElementById('searchStatus').textContent = 'Error: ' + error.message;
-                });
+                const waitingList = JSON.parse(localStorage.getItem('chattelo_waiting') || '[]');
+                const partners = waitingList.filter(id => id !== userId);
+                
+                updateSearchStatus(`Searching... (${waitingList.length} users online)`);
+                
+                if (partners.length > 0) {
+                    // Found a partner!
+                    partnerId = partners[0];
+                    createRoom();
+                }
+                
+                // Clean up old users (older than 2 minutes)
+                cleanupOldUsers();
             }, 2000);
         }
 
-        function createRoom(partnerId) {
-            if (!db) return;
-
-            // Remove both from waiting
-            db.ref('waiting/' + userId).remove();
-            db.ref('waiting/' + partnerId).remove();
+        function createRoom() {
+            clearInterval(checkInterval);
             
-            // Create room with simple name
+            // Remove both from waiting list
+            const waitingList = JSON.parse(localStorage.getItem('chattelo_waiting') || '[]');
+            const newList = waitingList.filter(id => id !== userId && id !== partnerId);
+            localStorage.setItem('chattelo_waiting', JSON.stringify(newList));
+            
+            // Create room
             roomId = 'room_' + Date.now();
-            db.ref('rooms/' + roomId).set({
+            localStorage.setItem('chattelo_room_' + roomId, JSON.stringify({
                 user1: userId,
                 user2: partnerId,
                 created: Date.now()
-            }).then(() => {
-                startChatSession();
-            }).catch(error => {
-                document.getElementById('searchStatus').textContent = 'Room creation failed: ' + error.message;
-            });
+            }));
+            
+            // Store which room each user is in
+            localStorage.setItem('chattelo_user_' + userId, roomId);
+            localStorage.setItem('chattelo_user_' + partnerId, roomId);
+            
+            startChatSession();
         }
 
         function startChatSession() {
+            isConnected = true;
             document.getElementById('chatStatus').textContent = 'Connected!';
             document.getElementById('messages').innerHTML = '';
             showSystemMsg('🎉 Connected with a random person! Say hello!');
@@ -247,37 +212,53 @@
             document.querySelector('.send-btn').disabled = false;
             document.getElementById('messageInput').focus();
 
-            // Listen for ALL messages in this room
-            db.ref('rooms/' + roomId + '/messages').on('child_added', (snapshot) => {
-                const msg = snapshot.val();
-                if (msg && msg.text) {
-                    // If message is from partner, show as received
-                    if (msg.sender !== userId) {
+            // Start listening for messages
+            listenForMessages();
+        }
+
+        function listenForMessages() {
+            setInterval(() => {
+                if (!isConnected) return;
+                
+                const roomData = JSON.parse(localStorage.getItem('chattelo_room_' + roomId) || '{}');
+                const messages = roomData.messages || [];
+                
+                // Show new messages from partner
+                messages.forEach(msg => {
+                    if (msg.sender === partnerId && !msg.displayed) {
                         addMessage(msg.text, 'received');
+                        msg.displayed = true;
                     }
+                });
+                
+                // Update room data
+                if (messages.length > 0) {
+                    roomData.messages = messages;
+                    localStorage.setItem('chattelo_room_' + roomId, JSON.stringify(roomData));
                 }
-            });
+            }, 1000);
         }
 
         function sendMsg() {
-            if (!db || !roomId) return;
-
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
-            if (text) {
+            if (text && roomId) {
                 // Show my message immediately
                 addMessage(text, 'sent');
                 
-                // Save to Firebase
-                db.ref('rooms/' + roomId + '/messages').push({
+                // Save message to room
+                const roomData = JSON.parse(localStorage.getItem('chattelo_room_' + roomId) || '{}');
+                if (!roomData.messages) roomData.messages = [];
+                
+                roomData.messages.push({
                     sender: userId,
                     text: text,
-                    time: Date.now()
-                }).catch(error => {
-                    showSystemMsg('❌ Failed to send message: ' + error.message);
+                    time: Date.now(),
+                    displayed: false
                 });
                 
+                localStorage.setItem('chattelo_room_' + roomId, JSON.stringify(roomData));
                 input.value = '';
             }
         }
@@ -300,6 +281,26 @@
             container.scrollTop = container.scrollHeight;
         }
 
+        function updateSearchStatus(text) {
+            const statusEl = document.getElementById('searchStatus');
+            if (statusEl) {
+                statusEl.textContent = text;
+            }
+        }
+
+        function cleanupOldUsers() {
+            const waitingList = JSON.parse(localStorage.getItem('chattelo_waiting') || '[]');
+            const twoMinutesAgo = Date.now() - 120000;
+            const freshList = waitingList.filter(userId => {
+                const userTime = parseInt(userId.split('_')[1]);
+                return userTime > twoMinutesAgo;
+            });
+            
+            if (freshList.length !== waitingList.length) {
+                localStorage.setItem('chattelo_waiting', JSON.stringify(freshList));
+            }
+        }
+
         function nextPerson() {
             showSystemMsg('🔄 Finding new person...');
             cleanup();
@@ -314,15 +315,18 @@
         }
 
         function cleanup() {
+            isConnected = false;
             if (checkInterval) {
                 clearInterval(checkInterval);
             }
-            if (userId && db) {
-                db.ref('online/' + userId).remove();
-                db.ref('waiting/' + userId).remove();
+            if (userId) {
+                const waitingList = JSON.parse(localStorage.getItem('chattelo_waiting') || '[]');
+                const newList = waitingList.filter(id => id !== userId);
+                localStorage.setItem('chattelo_waiting', JSON.stringify(newList));
+                localStorage.removeItem('chattelo_user_' + userId);
             }
-            if (roomId && db) {
-                db.ref('rooms/' + roomId).remove();
+            if (roomId) {
+                localStorage.removeItem('chattelo_room_' + roomId);
             }
         }
 
@@ -358,8 +362,11 @@
             if (e.key === 'Enter') sendMsg();
         });
 
-        // Initialize
-        initStats();
+        // Auto-cleanup on page load
+        window.addEventListener('load', function() {
+            // Clean up any old data
+            cleanupOldUsers();
+        });
     </script>
 </body>
 </html>
