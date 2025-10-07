@@ -362,6 +362,7 @@
             font-style: italic;
             margin: 10px 0;
             font-size: 12px;
+            padding: 8px;
         }
     </style>
 </head>
@@ -546,7 +547,6 @@
         let currentUserId = null;
         let currentChatRoom = null;
         let currentPartner = null;
-        let connectionTimeout = null;
 
         // Initialize stats
         function initStats() {
@@ -572,10 +572,6 @@
             currentUserId = null;
             currentChatRoom = null;
             currentPartner = null;
-            
-            if (connectionTimeout) {
-                clearTimeout(connectionTimeout);
-            }
         }
 
         // Clean up user data
@@ -583,6 +579,7 @@
             if (currentUserId) {
                 database.ref('onlineUsers/' + currentUserId).remove();
                 database.ref('waitingUsers/' + currentUserId).remove();
+                database.ref('userChatRooms/' + currentUserId).remove();
             }
             if (currentChatRoom) {
                 database.ref('activeChats/' + currentChatRoom).remove();
@@ -658,7 +655,8 @@
             document.getElementById('searchingCount').textContent = 'Waiting for someone to join...';
             
             // Listen for when we get matched
-            database.ref('waitingUsers/' + currentUserId).on('value', (snapshot) => {
+            const waitingRef = database.ref('waitingUsers/' + currentUserId);
+            waitingRef.on('value', (snapshot) => {
                 if (!snapshot.exists() && isSearching) {
                     // We were removed from queue = we got matched!
                     findRandomPartner();
@@ -694,6 +692,10 @@
                 active: true
             });
 
+            // Store chat room for both users
+            database.ref('userChatRooms/' + currentUserId).set(currentChatRoom);
+            database.ref('userChatRooms/' + partnerId).set(currentChatRoom);
+
             // Add to active chats
             database.ref('activeChats/' + currentChatRoom).set(true);
 
@@ -714,25 +716,34 @@
             document.getElementById('messageInput').placeholder = "Type your message...";
             document.getElementById('messageInput').focus();
 
-            // Listen for ALL messages (FIXED MESSAGE DELIVERY)
+            // Clear previous messages and show welcome
+            document.getElementById('messagesContainer').innerHTML = '';
+            showSystemMessage("🔗 Connected with a random person! Say hello!");
+
+            // Listen for ALL messages (FIXED - SIMPLIFIED APPROACH)
             database.ref('chatRooms/' + currentChatRoom + '/messages').on('child_added', (snapshot) => {
-                const message = snapshot.val();
-                // Only show messages from partner (not our own)
-                if (message.sender !== currentUserId) {
-                    showMessage(message.text, 'received');
+                const messageData = snapshot.val();
+                if (messageData && messageData.sender && messageData.text) {
+                    if (messageData.sender === currentUserId) {
+                        // This is our own message - we already showed it
+                        return;
+                    } else {
+                        // This is partner's message - show it
+                        showMessage(messageData.text, 'received');
+                    }
                 }
             });
-
-            // Show welcome message
-            showSystemMessage("You are now connected with a random person! Say hello!");
         }
 
-        // Send message (FIXED MESSAGE SENDING)
+        // Send message (FIXED - SIMPLIFIED)
         function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
             if (text && currentChatRoom) {
+                // Show my message immediately
+                showMessage(text, 'sent');
+                
                 // Save message to database
                 const messageData = {
                     sender: currentUserId,
@@ -741,9 +752,6 @@
                 };
 
                 database.ref('chatRooms/' + currentChatRoom + '/messages').push(messageData);
-                
-                // Show my message immediately
-                showMessage(text, 'sent');
                 input.value = '';
             }
         }
@@ -772,34 +780,18 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // FIXED SKIP FUNCTION
+        // FIXED SKIP FUNCTION - SIMPLIFIED
         function skipPerson() {
-            if (isConnected) {
-                // User is in active chat - show confirmation
-                if (confirm("Skip this person and find someone new?")) {
-                    showSystemMessage("You skipped this person. Finding someone new...");
-                    cleanupUserData();
-                    setTimeout(() => {
-                        startRandomChat();
-                    }, 1000);
-                }
-            } else if (isSearching) {
-                // User is searching/waiting - skip immediately
-                showSystemMessage("Skipping... Finding new person...");
-                database.ref('waitingUsers/' + currentUserId).remove();
-                setTimeout(() => {
-                    startRandomChat();
-                }, 500);
-            }
-        }
-
-        // Update stats on landing page
-        function updateStats() {
-            // Stats are now real-time from Firebase
+            showSystemMessage("🔄 Finding someone new...");
+            cleanupUserData();
+            setTimeout(() => {
+                startRandomChat();
+            }, 1000);
         }
 
         // Chat timer
         function startTimer() {
+            resetTimer();
             chatTimer = setInterval(() => {
                 chatSeconds++;
                 const minutes = Math.floor(chatSeconds / 60);
@@ -810,7 +802,9 @@
         }
 
         function resetTimer() {
-            clearInterval(chatTimer);
+            if (chatTimer) {
+                clearInterval(chatTimer);
+            }
             chatSeconds = 0;
         }
 
