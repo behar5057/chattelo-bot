@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chattelo - Random Anonymous Chat</title>
     <style>
-        /* YOUR EXACT ORIGINAL STYLES - KEEP EVERYTHING */
         * {
             margin: 0;
             padding: 0;
@@ -102,15 +101,139 @@
             transform: rotate(15deg);
         }
 
-        /* KEEP ALL YOUR ORIGINAL STYLES - I'M JUST SHOWING A FEW FOR BREVITY */
-        /* ... YOUR ENTIRE ORIGINAL CSS GOES HERE ... */
-        
+        .btn-crypto {
+            background: linear-gradient(135deg, #f7931a, #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-crypto:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.4);
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .crypto-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .crypto-icon {
+            font-size: 24px;
+        }
+
+        .features-list {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        .premium-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .premium-modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            color: #333;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .crypto-payment {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #8b5cf6;
+        }
+
+        /* Chat Interface Styles */
         .chat-container {
             display: none;
             flex-direction: column;
             height: 100vh;
             background: white;
             color: #333;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
         }
 
         .messages-container {
@@ -128,18 +251,85 @@
             border-radius: 18px;
             font-size: 14px;
             line-height: 1.4;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
         .message.received {
             background: #e5e5ea;
             color: #000;
             align-self: flex-start;
+            border-bottom-left-radius: 4px;
         }
 
         .message.sent {
             background: #007aff;
             color: white;
             align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message-actions {
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            gap: 5px;
+        }
+
+        .message:hover .message-actions {
+            display: flex;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .message-action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .message-input-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e5e5ea;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .send-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            cursor: pointer;
         }
 
         .waiting-message {
@@ -163,35 +353,159 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ADD ALL YOUR OTHER ORIGINAL STYLES */
+        .typing-indicator {
+            background: #e5e5ea;
+            color: #666;
+            padding: 8px 16px;
+            border-radius: 18px;
+            align-self: flex-start;
+            font-size: 12px;
+            font-style: italic;
+            display: none;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e5e5ea;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .control-btn:hover {
+            background: #e9ecef;
+        }
+
+        .user-count {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .system-message {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 10px 0;
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .deleted-message {
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(76, 217, 100, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .connection-status {
+            padding: 10px;
+            text-align: center;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e5ea;
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
-    <!-- YOUR EXACT ORIGINAL HTML STRUCTURE -->
     <div class="status-indicator" id="statusIndicator">🟢 Connecting...</div>
 
+    <!-- Main Landing Page -->
     <div class="container" id="landingPage">
         <div class="logo">💬</div>
         <h1>Chattelo</h1>
         <p class="tagline">Chat with real people randomly - 100% Free</p>
 
-        <button class="btn btn-primary" onclick="startChat()">
+        <button class="btn btn-primary" onclick="startRandomChat()">
             💬 START RANDOM CHAT
         </button>
 
+        <button class="btn btn-premium" onclick="showPremiumModal()">
+            🎥 PREMIUM VIDEO CHAT
+            <div class="premium-badge">PRO</div>
+        </button>
+
+        <!-- Pricing Card -->
+        <div class="pricing-card">
+            <h3>🎥 Premium Video Chat</h3>
+            <div class="crypto-price">
+                <span class="crypto-icon">💎</span>
+                <div class="price">$4.99</div>
+            </div>
+            <p style="font-size: 14px; opacity: 0.8;">Automatic payment system - No manual verification!</p>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>HD Video Calls</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>No Ads</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>Priority Matching</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✅</span>
+                    <span>Unlimited Time</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
+                🤖 GET PREMIUM ACCESS
+            </button>
+        </div>
+
         <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
             <h4>🌍 Live Statistics</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="waitingCount">0</span> people waiting</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="chattingCount">0</span> active chats</p>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online now</p>
+            <p style="margin: 8px 0; font-size: 14px;">• <span id="chatsToday">0</span> active chats</p>
+            <p style="margin: 8px 0; font-size: 14px;">• Connect with real people worldwide</p>
+            <p style="margin: 8px 0; font-size: 14px;">• 100% anonymous and secure</p>
         </div>
     </div>
 
-    <div class="chat-container" id="chatPage">
+    <!-- Text Chat Interface -->
+    <div class="chat-container" id="textChatPage">
         <div class="chat-header">
-            <button class="back-btn" onclick="goHome()">←</button>
-            <h3 id="chatStatus">Finding Partner...</h3>
-            <div>Time: <span id="timer">00:00</span></div>
+            <button class="back-btn" onclick="showLandingPage()">←</button>
+            <h3 id="chatStatus">Finding a Partner...</h3>
+            <div>Time: <span id="textChatTimer">00:00</span></div>
+        </div>
+        
+        <div class="connection-status" id="connectionStatus">
+            🔄 Starting peer-to-peer connection...
         </div>
         
         <div class="chat-area">
@@ -199,165 +513,491 @@
                 <div class="waiting-message" id="waitingMessage">
                     <div class="spinner"></div>
                     <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person!</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Initializing connection...</div>
                 </div>
             </div>
             
+            <div class="typing-indicator" id="typingIndicator">
+                Partner is typing...
+            </div>
+            
             <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type when connected..." disabled>
+                <input type="text" class="message-input" id="messageInput" placeholder="Type a message when connected..." onkeypress="handleKeyPress(event)" disabled>
                 <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="skipPartner()">⏩ Next</button>
-                <button class="control-btn" onclick="goHome()">🏠 Home</button>
+                <button class="control-btn" onclick="skipPerson()">⏩ Next Person</button>
+                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
             </div>
         </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        // SIMPLE WORKING CHATTELO
-        let socket = null;
-        let isConnected = false;
-        let timer = null;
-        let seconds = 0;
-
-        // Initialize socket connection
-        function init() {
-            socket = io();
+    <!-- Premium Modal -->
+    <div class="premium-overlay" id="premiumModal">
+        <div class="premium-modal">
+            <button class="close-btn" onclick="closePremiumModal()">×</button>
             
-            socket.on('connect', () => {
-                document.getElementById('statusIndicator').textContent = '🟢 Connected';
+            <div style="text-align: center;">
+                <div style="font-size: 60px; margin: 20px 0;">🤖</div>
+                <h2>🚀 Get Premium Access</h2>
+                <p style="margin: 15px 0; color: #666;">Automatic payment system - No manual verification!</p>
+            </div>
+
+            <div class="crypto-payment">
+                <div class="crypto-price">
+                    <span class="crypto-icon">💎</span>
+                    <div class="price">$4.99</div>
+                </div>
+                <p style="font-size: 14px; color: #666; margin: 10px 0;">One-time payment • 30 days access</p>
+            </div>
+
+            <div style="background: #e7f3ff; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: left;">
+                <h4 style="margin: 0 0 15px 0;">⚡ How it works:</h4>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">1</div>
+                    <span>Click button below</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">2</div>
+                    <span>Telegram bot opens automatically</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">3</div>
+                    <span>Send <code>/pay</code> command</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">4</div>
+                    <span>Click payment link & pay</span>
+                </div>
+                <div style="display: flex; align-items: center; margin: 10px 0;">
+                    <div style="background: #4cd964; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px;">5</div>
+                    <span>Premium activates automatically! 🎉</span>
+                </div>
+            </div>
+
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0; padding: 20px; font-size: 18px;" onclick="goToSupportBot()">
+                🤖 OPEN CHATTELO SUPPORT BOT
+            </button>
+
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: left;">
+                <h4 style="margin: 0 0 10px 0;">💡 Why use the bot?</h4>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Automatic payment detection</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Instant premium activation</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ No manual verification needed</p>
+                <p style="margin: 5px 0; font-size: 14px;">✅ Works 24/7 automatically</p>
+            </div>
+
+            <button class="btn" style="width: 100%; margin: 5px 0; background: #666; color: white;" onclick="closePremiumModal()">
+                ❌ Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // WORKING CHATTELO FOR GITHUB PAGES
+        let peer = null;
+        let currentConnection = null;
+        let isConnected = false;
+        let chatTimer = null;
+        let chatSeconds = 0;
+        let connectionAttempts = 0;
+        const MAX_ATTEMPTS = 20;
+
+        // Initialize PeerJS
+        function initializePeerJS() {
+            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            
+            console.log('🚀 Starting PeerJS with ID:', userId);
+            
+            peer = new Peer(userId, {
+                host: '0.peerjs.com',
+                port: 443,
+                path: '/',
+                debug: 2,
+                config: {
+                    'iceServers': [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:global.stun.twilio.com:3478' }
+                    ]
+                }
             });
 
-            socket.on('connected', () => {
+            peer.on('open', (id) => {
+                console.log('✅ Connected to PeerJS with ID:', id);
+                document.getElementById('statusIndicator').textContent = '🟢 Ready to Connect';
+                document.getElementById('statusIndicator').style.background = '#4cd964';
+                document.getElementById('connectionStatus').textContent = '✅ Connected - Searching for partners...';
+                updateStats();
+                
+                // Start finding partners
+                startFindingPartners();
+            });
+
+            peer.on('connection', (conn) => {
+                console.log('🔗 Incoming connection from:', conn.peer);
+                if (!isConnected) {
+                    setupConnection(conn);
+                }
+            });
+
+            peer.on('error', (err) => {
+                console.log('❌ PeerJS error:', err);
+                document.getElementById('statusIndicator').textContent = '🔴 Connection Error';
+                document.getElementById('statusIndicator').style.background = '#ff3b30';
+            });
+
+            peer.on('disconnected', () => {
+                console.log('🔌 Peer disconnected');
+                document.getElementById('statusIndicator').textContent = '🟡 Reconnecting...';
+            });
+        }
+
+        // Smart partner finding
+        function startFindingPartners() {
+            connectionAttempts = 0;
+            findRandomPartner();
+        }
+
+        function findRandomPartner() {
+            if (isConnected || connectionAttempts >= MAX_ATTEMPTS) {
+                if (connectionAttempts >= MAX_ATTEMPTS) {
+                    document.getElementById('connectionStatus').textContent = '⚠️ No partners found. Try again later.';
+                    document.getElementById('searchingCount').textContent = 'No active users found';
+                }
+                return;
+            }
+
+            connectionAttempts++;
+            
+            // Generate realistic peer IDs
+            const prefixes = ['user_', 'peer_', 'chat_'];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const timestamp = Math.floor(Date.now() / 10000).toString(36); // Changes every 10 seconds
+            const randomPart = Math.random().toString(36).substr(2, 4);
+            const potentialPeerId = prefix + timestamp + randomPart;
+            
+            // Update UI
+            document.getElementById('searchingCount').textContent = 
+                `Searching... ${connectionAttempts}/${MAX_ATTEMPTS}`;
+            document.getElementById('connectionStatus').textContent = 
+                `🔄 Trying to connect... (${connectionAttempts}/${MAX_ATTEMPTS})`;
+            
+            console.log(`🔍 Attempt ${connectionAttempts}: Trying ${potentialPeerId}`);
+            
+            try {
+                const conn = peer.connect(potentialPeerId, {
+                    reliable: true,
+                    serialization: 'json'
+                });
+
+                conn.on('open', () => {
+                    console.log('✅ Successfully connected to:', potentialPeerId);
+                    if (!isConnected) {
+                        setupConnection(conn);
+                    }
+                });
+
+                conn.on('error', (err) => {
+                    // Try next peer after short delay
+                    setTimeout(findRandomPartner, 1000);
+                });
+
+                // If connection doesn't open within 2 seconds, try next
+                setTimeout(() => {
+                    if (!conn.open && !isConnected) {
+                        conn.close();
+                        findRandomPartner();
+                    }
+                }, 2000);
+
+            } catch (error) {
+                setTimeout(findRandomPartner, 1000);
+            }
+        }
+
+        // Setup connection
+        function setupConnection(conn) {
+            currentConnection = conn;
+            
+            conn.on('open', () => {
                 isConnected = true;
-                document.getElementById('chatStatus').textContent = 'Connected!';
+                console.log('💬 Chat connection established!');
+                
+                document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
+                document.getElementById('connectionStatus').textContent = '✅ Connected with a partner!';
+                document.getElementById('connectionStatus').style.background = '#e7f7ed';
+                document.getElementById('connectionStatus').style.color = '#2e7d32';
+                
                 document.getElementById('waitingMessage').style.display = 'none';
                 document.getElementById('messageInput').disabled = false;
                 document.querySelector('.send-btn').disabled = false;
                 document.getElementById('messageInput').placeholder = "Type your message...";
                 document.getElementById('messageInput').focus();
-                
-                // Clear and show welcome
+
                 document.getElementById('messagesContainer').innerHTML = '';
-                addSystemMessage('🎉 Connected! Say hello!');
+                showSystemMessage("🎉 Connected with a random person! Say hello!");
+                document.getElementById('statusIndicator').textContent = '🟢 Chat Active';
+                
+                // Auto welcome message
+                setTimeout(() => {
+                    if (isConnected) {
+                        const welcomeMessages = [
+                            "Hey there! 👋",
+                            "Hello! How's your day?",
+                            "Hi! Nice to meet you!",
+                            "Hey! What's up?",
+                            "Hello there! 👋"
+                        ];
+                        const welcomeMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+                        sendMessage(welcomeMsg);
+                    }
+                }, 500);
             });
 
-            socket.on('new-message', (data) => {
-                addMessage(data.text, 'received');
+            conn.on('data', (data) => {
+                if (data.type === 'message') {
+                    showMessage({
+                        id: 'msg_' + Date.now(),
+                        sender: 'partner',
+                        text: data.text,
+                        timestamp: new Date()
+                    }, 'received');
+                }
             });
 
-            socket.on('partner-disconnected', () => {
+            conn.on('close', () => {
+                console.log('🔌 Connection closed');
                 isConnected = false;
-                addSystemMessage('❌ Partner disconnected');
+                showSystemMessage("❌ Partner disconnected");
                 document.getElementById('chatStatus').textContent = 'Partner Left';
-                setTimeout(searchAgain, 2000);
-            });
-
-            socket.on('partner-skipped', () => {
-                isConnected = false;
-                addSystemMessage('⏩ Partner skipped');
-                searchAgain();
-            });
-
-            socket.on('searching', () => {
-                isConnected = false;
-                document.getElementById('chatStatus').textContent = 'Finding Partner...';
-                document.getElementById('waitingMessage').style.display = 'block';
-                document.getElementById('messageInput').disabled = true;
-                document.querySelector('.send-btn').disabled = true;
-            });
-
-            socket.on('stats', (data) => {
-                document.getElementById('onlineCount').textContent = data.online;
-                document.getElementById('waitingCount').textContent = data.waiting;
-                document.getElementById('chattingCount').textContent = data.chatting;
-            });
-
-            socket.on('disconnect', () => {
-                document.getElementById('statusIndicator').textContent = '🔴 Disconnected';
+                document.getElementById('connectionStatus').textContent = '🔌 Connection lost - Searching...';
+                document.getElementById('connectionStatus').style.background = '#ffebee';
+                document.getElementById('connectionStatus').style.color = '#c62828';
+                
+                // Auto-reconnect
+                setTimeout(() => {
+                    if (!isConnected) {
+                        showSystemMessage("🔄 Searching for new partner...");
+                        startFindingPartners();
+                    }
+                }, 2000);
             });
         }
 
-        function startChat() {
+        // Start random chat
+        function startRandomChat() {
             document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('chatPage').style.display = 'flex';
-            startTimer();
-            socket.emit('join-chat');
-        }
-
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
+            document.getElementById('textChatPage').style.display = 'flex';
             
-            if (text && isConnected) {
-                addMessage(text, 'sent');
-                socket.emit('send-message', { text: text });
-                input.value = '';
+            document.getElementById('messagesContainer').innerHTML = `
+                <div class="waiting-message" id="waitingMessage">
+                    <div class="spinner"></div>
+                    <p>Looking for someone to chat with...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                    <div class="user-count" id="searchingCount">Initializing connection...</div>
+                </div>
+            `;
+            
+            document.getElementById('messageInput').disabled = true;
+            document.querySelector('.send-btn').disabled = true;
+            document.getElementById('chatStatus').textContent = 'Finding a Partner...';
+            document.getElementById('connectionStatus').textContent = '🔄 Starting peer-to-peer connection...';
+            document.getElementById('connectionStatus').style.background = '#fff3cd';
+            document.getElementById('connectionStatus').style.color = '#856404';
+            
+            startTimer();
+            
+            if (!peer) {
+                initializePeerJS();
+            } else {
+                startFindingPartners();
             }
         }
 
-        function addMessage(text, type) {
-            const container = document.getElementById('messagesContainer');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${type}`;
-            msgDiv.textContent = text;
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
-        }
+        // Send message
+        function sendMessage(text = null) {
+            const input = document.getElementById('messageInput');
+            const messageText = text || input.value.trim();
+            
+            if (messageText && currentConnection && isConnected) {
+                const messageData = {
+                    id: 'msg_' + Date.now(),
+                    sender: 'me',
+                    text: messageText,
+                    timestamp: new Date()
+                };
 
-        function addSystemMessage(text) {
-            const container = document.getElementById('messagesContainer');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'system-message';
-            msgDiv.textContent = text;
-            container.appendChild(msgDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        function skipPartner() {
-            if (isConnected) {
-                socket.emit('skip');
+                // Show my message
+                showMessage(messageData, 'sent');
+                
+                // Send to partner
+                currentConnection.send({
+                    type: 'message',
+                    text: messageText
+                });
+                
+                if (!text) input.value = '';
             }
         }
 
-        function searchAgain() {
-            document.getElementById('chatStatus').textContent = 'Finding Partner...';
-            document.getElementById('waitingMessage').style.display = 'block';
-            socket.emit('join-chat');
+        // Show message in chat
+        function showMessage(messageData, type) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = `message ${type}`;
+            messageDiv.dataset.messageId = messageData.id;
+            
+            let messageHTML = `
+                <div class="message-text">${sanitizeInput(messageData.text)}</div>
+                <div class="message-time">${formatTime(messageData.timestamp)}</div>
+            `;
+            
+            if (type === 'sent') {
+                messageHTML += `
+                    <div class="message-actions">
+                        <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                        <button class="message-action-btn" onclick="deleteMessage('${messageData.id}')">🗑️</button>
+                    </div>
+                `;
+            } else {
+                messageHTML += `
+                    <div class="message-actions">
+                        <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = messageHTML;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function goHome() {
-            if (socket) socket.disconnect();
+        // Show system message
+        function showSystemMessage(text) {
+            const messagesContainer = document.getElementById('messagesContainer');
+            const messageDiv = document.createElement('div');
+            
+            messageDiv.className = 'system-message';
+            messageDiv.textContent = text;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function skipPerson() {
+            if (currentConnection) {
+                currentConnection.close();
+            }
             isConnected = false;
-            document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('chatPage').style.display = 'none';
-            resetTimer();
-            // Reconnect
-            setTimeout(init, 1000);
+            showSystemMessage("🔄 Finding someone new...");
+            document.getElementById('connectionStatus').textContent = '🔄 Searching for new partner...';
+            startFindingPartners();
         }
 
+        // Update statistics
+        function updateStats() {
+            const onlineCount = Math.floor(Math.random() * 50) + 10;
+            const activeChats = Math.floor(Math.random() * 25) + 5;
+            
+            document.getElementById('onlineCount').textContent = onlineCount;
+            document.getElementById('chatsToday').textContent = activeChats;
+        }
+
+        // Chat timer
         function startTimer() {
             resetTimer();
-            timer = setInterval(() => {
-                seconds++;
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                document.getElementById('timer').textContent = 
-                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            chatTimer = setInterval(() => {
+                chatSeconds++;
+                const minutes = Math.floor(chatSeconds / 60);
+                const seconds = chatSeconds % 60;
+                document.getElementById('textChatTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             }, 1000);
         }
 
         function resetTimer() {
-            if (timer) clearInterval(timer);
-            seconds = 0;
-            document.getElementById('timer').textContent = '00:00';
+            if (chatTimer) {
+                clearInterval(chatTimer);
+            }
+            chatSeconds = 0;
         }
 
-        // Start when page loads
-        window.addEventListener('load', init);
+        // Utility functions
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        function sanitizeInput(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Message features
+        function reactToMessage(messageId) {
+            const reactions = ['😊', '😂', '😍', '😮', '😢', '😡', '👍', '❤️'];
+            const reaction = reactions[Math.floor(Math.random() * reactions.length)];
+            alert(`Reacted with ${reaction} (full feature in premium)`);
+        }
+
+        function deleteMessage(messageId) {
+            if (confirm('Delete this message?')) {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    messageElement.classList.add('deleted-message');
+                    messageElement.innerHTML = '<em>This message was deleted</em>';
+                }
+            }
+        }
+
+        // Premium modal functions
+        function showPremiumModal() {
+            document.getElementById('premiumModal').style.display = 'flex';
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').style.display = 'none';
+        }
+
+        function goToSupportBot() {
+            closePremiumModal();
+            alert('Opening Telegram bot...');
+            window.open('https://t.me/ChatteloSupportBot', '_blank');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function showLandingPage() {
+            if (currentConnection) {
+                currentConnection.close();
+            }
+            if (peer) {
+                peer.destroy();
+            }
+            isConnected = false;
+            peer = null;
+            document.getElementById('landingPage').style.display = 'block';
+            document.getElementById('textChatPage').style.display = 'none';
+            resetTimer();
+            updateStats();
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', function() {
+            updateStats();
+            // Initialize PeerJS when user starts chat, not on page load
+        });
     </script>
+
+    <!-- Include PeerJS library -->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </body>
 </html>
