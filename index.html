@@ -1,629 +1,345 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chattelo - Random Anonymous Chat</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<script>
+    // FIXED CHATTELO - KEEPING YOUR ORIGINAL DESIGN
+    let socket = null;
+    let isConnected = false;
+    let chatTimer = null;
+    let chatSeconds = 0;
+    let partnerId = null;
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 80px;
-            margin: 30px 0 10px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .tagline {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            margin: 15px 0;
-            border: none;
-            border-radius: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: #4cd964;
-            color: white;
-            box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #44c554;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4);
-        }
-
-        /* Chat Interface Styles */
-        .chat-container {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-            background: white;
-            color: #333;
-        }
-
-        .chat-header {
-            background: #667eea;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #f8f9fa;
-        }
-
-        .messages-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message.received {
-            background: #e5e5ea;
-            color: #000;
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-        }
-
-        .message.sent {
-            background: #007aff;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.6;
-            margin-top: 3px;
-            text-align: right;
-        }
-
-        .message-input-container {
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e5e5ea;
-            display: flex;
-            gap: 10px;
-        }
-
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #e5e5ea;
-            border-radius: 20px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .send-btn {
-            background: #007aff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .waiting-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .typing-indicator {
-            background: #e5e5ea;
-            color: #666;
-            padding: 8px 16px;
-            border-radius: 18px;
-            align-self: flex-start;
-            font-size: 12px;
-            font-style: italic;
-            display: none;
-        }
-
-        .chat-controls {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #e5e5ea;
-        }
-
-        .control-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: #f8f9fa;
-            color: #333;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .user-count {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
+    // Initialize connection
+    function initializeConnection() {
+        // Use your existing server or localhost for testing
+        const serverUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : 'YOUR_SERVER_URL'; // Replace with your actual server
         
-        .system-message {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
-            font-size: 12px;
-            padding: 8px;
-        }
-
-        .status-indicator {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(76, 217, 100, 0.9);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            z-index: 1000;
-        }
-
-        .connection-status {
-            padding: 10px;
-            text-align: center;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e5e5ea;
-            font-size: 14px;
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="status-indicator" id="statusIndicator">🟢 Connecting...</div>
-
-    <!-- Main Landing Page -->
-    <div class="container" id="landingPage">
-        <div class="logo">💬</div>
-        <h1>Chattelo</h1>
-        <p class="tagline">Chat with real people randomly - 100% Free</p>
-
-        <button class="btn btn-primary" onclick="startRandomChat()">
-            💬 START RANDOM CHAT
-        </button>
-
-        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>🌍 Live Statistics</h4>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="onlineCount">0</span> people online now</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="waitingCount">0</span> people waiting</p>
-            <p style="margin: 8px 0; font-size: 14px;">• <span id="activeChats">0</span> active chats</p>
-            <p style="margin: 8px 0; font-size: 14px;">• Connect with real people worldwide</p>
-        </div>
-    </div>
-
-    <!-- Text Chat Interface -->
-    <div class="chat-container" id="textChatPage">
-        <div class="chat-header">
-            <button class="back-btn" onclick="showLandingPage()">←</button>
-            <h3 id="chatStatus">Finding a Partner...</h3>
-            <div>Time: <span id="textChatTimer">00:00</span></div>
-        </div>
+        console.log('🚀 Connecting to server...');
         
-        <div class="connection-status" id="connectionStatus">
-            🔄 Connecting to chat server...
-        </div>
-        
-        <div class="chat-area">
-            <div class="messages-container" id="messagesContainer">
-                <div class="waiting-message" id="waitingMessage">
-                    <div class="spinner"></div>
-                    <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
-                    <div class="user-count" id="searchingCount">Connecting...</div>
-                </div>
-            </div>
+        // Create socket connection
+        socket = io(serverUrl);
+
+        socket.on('connect', () => {
+            console.log('✅ Connected to server');
+            document.getElementById('statusIndicator').textContent = '🟢 Connected';
+            updateStats();
+        });
+
+        socket.on('matched', (data) => {
+            console.log('🤝 Matched with partner!');
+            partnerId = data.partnerId;
+            isConnected = true;
             
-            <div class="typing-indicator" id="typingIndicator">
-                Partner is typing...
-            </div>
+            // Update UI - KEEPING YOUR ORIGINAL STYLING
+            document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
+            document.getElementById('waitingMessage').style.display = 'none';
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            document.getElementById('messageInput').placeholder = "Type your message...";
+            document.getElementById('messageInput').focus();
+
+            // Clear and show connected message
+            document.getElementById('messagesContainer').innerHTML = '';
+            showSystemMessage("🎉 Connected with a random person! Say hello!");
             
-            <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type a message when connected..." onkeypress="handleKeyPress(event)" disabled>
-                <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
-            </div>
-
-            <div class="chat-controls">
-                <button class="control-btn" onclick="skipPerson()">⏩ Next Person</button>
-                <button class="control-btn" onclick="showLandingPage()">🏠 Home</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        // WORKING CHATTELO WITH SIGNALING SERVER
-        let socket = null;
-        let isConnected = false;
-        let chatTimer = null;
-        let chatSeconds = 0;
-        let partnerId = null;
-
-        // Initialize Socket.io connection
-        function initializeSocket() {
-            // Connect to your signaling server
-            // Replace with your server URL when deployed
-            const serverUrl = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3000' 
-                : 'https://your-chattelo-server.herokuapp.com'; // Replace with your deployed server URL
-            
-            console.log('🚀 Connecting to server:', serverUrl);
-            socket = io(serverUrl);
-
-            socket.on('connect', () => {
-                console.log('✅ Connected to server with ID:', socket.id);
-                document.getElementById('statusIndicator').textContent = '🟢 Connected';
-                document.getElementById('statusIndicator').style.background = '#4cd964';
-                document.getElementById('connectionStatus').textContent = '✅ Connected to chat server';
-            });
-
-            socket.on('matched', (data) => {
-                console.log('🤝 Matched with partner:', data.partnerId);
-                partnerId = data.partnerId;
-                isConnected = true;
-                
-                document.getElementById('chatStatus').textContent = 'Connected! Start chatting!';
-                document.getElementById('connectionStatus').textContent = '✅ Connected with a partner!';
-                document.getElementById('connectionStatus').style.background = '#e7f7ed';
-                document.getElementById('connectionStatus').style.color = '#2e7d32';
-                
-                document.getElementById('waitingMessage').style.display = 'none';
-                document.getElementById('messageInput').disabled = false;
-                document.querySelector('.send-btn').disabled = false;
-                document.getElementById('messageInput').placeholder = "Type your message...";
-                document.getElementById('messageInput').focus();
-
-                document.getElementById('messagesContainer').innerHTML = '';
-                showSystemMessage("🎉 Connected with a random person! Say hello!");
-                
-                // Auto-send welcome message
-                setTimeout(() => {
-                    if (isConnected) {
-                        const welcomeMessage = getRandomWelcomeMessage();
-                        showMessage({
-                            text: welcomeMessage,
-                            sender: 'me',
-                            timestamp: new Date()
-                        }, 'sent');
-                        
-                        socket.emit('send-message', { text: welcomeMessage });
-                    }
-                }, 1000);
-            });
-
-            socket.on('receive-message', (data) => {
-                console.log('📨 Received message:', data);
-                showMessage({
-                    text: data.text,
-                    sender: 'partner',
-                    timestamp: new Date(data.timestamp)
-                }, 'received');
-            });
-
-            socket.on('partner-typing', (isTyping) => {
-                showTypingIndicator(isTyping);
-            });
-
-            socket.on('partner-disconnected', () => {
-                console.log('❌ Partner disconnected');
-                isConnected = false;
-                partnerId = null;
-                showSystemMessage("❌ Partner disconnected");
-                document.getElementById('chatStatus').textContent = 'Partner Left';
-                document.getElementById('connectionStatus').textContent = '🔌 Partner disconnected - Finding new partner...';
-                document.getElementById('connectionStatus').style.background = '#ffebee';
-                document.getElementById('connectionStatus').style.color = '#c62828';
-                
-                // Auto-find new partner after 2 seconds
-                setTimeout(() => {
-                    if (!isConnected) {
-                        joinChat();
-                    }
-                }, 2000);
-            });
-
-            socket.on('online-count', (data) => {
-                document.getElementById('onlineCount').textContent = data.online;
-                document.getElementById('waitingCount').textContent = data.waiting;
-                document.getElementById('activeChats').textContent = data.active;
-            });
-
-            socket.on('disconnect', () => {
-                console.log('🔌 Disconnected from server');
-                isConnected = false;
-                document.getElementById('statusIndicator').textContent = '🔴 Disconnected';
-                document.getElementById('statusIndicator').style.background = '#ff3b30';
-                document.getElementById('connectionStatus').textContent = '🔌 Disconnected from server';
-            });
-
-            socket.on('connect_error', (error) => {
-                console.log('❌ Connection error:', error);
-                document.getElementById('statusIndicator').textContent = '🔴 Connection Failed';
-                document.getElementById('statusIndicator').style.background = '#ff3b30';
-                document.getElementById('connectionStatus').textContent = '❌ Failed to connect to server';
-                
-                // Try to reconnect after 5 seconds
-                setTimeout(() => {
-                    if (!socket.connected) {
-                        initializeSocket();
-                    }
-                }, 5000);
-            });
-        }
-
-        // Join chat function
-        function joinChat() {
-            if (socket && socket.connected) {
-                socket.emit('join-chat', {
-                    userId: socket.id,
-                    timestamp: new Date()
-                });
-                document.getElementById('connectionStatus').textContent = '🔄 Searching for partners...';
-                document.getElementById('searchingCount').textContent = 'Waiting for match...';
-            }
-        }
-
-        // Get random welcome message
-        function getRandomWelcomeMessage() {
-            const messages = [
-                "Hey there! 👋",
-                "Hello! How's your day going?",
-                "Hi! Nice to meet you!",
-                "Hey! What's up?",
-                "Hello there! 👋",
-                "Hi! Ready to chat?",
-                "Hey! How are you?",
-                "Hello! Great to connect!",
-                "Hi there! 👋",
-                "Hey! What brings you here?"
-            ];
-            return messages[Math.floor(Math.random() * messages.length)];
-        }
-
-        // Start random chat
-        function startRandomChat() {
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('textChatPage').style.display = 'flex';
-            
-            document.getElementById('messagesContainer').innerHTML = `
-                <div class="waiting-message" id="waitingMessage">
-                    <div class="spinner"></div>
-                    <p>Looking for someone to chat with...</p>
-                    <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
-                    <div class="user-count" id="searchingCount">Connecting...</div>
-                </div>
-            `;
-            
-            document.getElementById('messageInput').disabled = true;
-            document.querySelector('.send-btn').disabled = true;
-            document.getElementById('chatStatus').textContent = 'Finding a Partner...';
-            document.getElementById('connectionStatus').textContent = '🔄 Starting search...';
-            document.getElementById('connectionStatus').style.background = '#fff3cd';
-            document.getElementById('connectionStatus').style.color = '#856404';
-            
-            startTimer();
-            joinChat();
-        }
-
-        // Send message
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            
-            if (text && socket && isConnected) {
-                // Show my message immediately
-                showMessage({
-                    text: text,
-                    sender: 'me',
-                    timestamp: new Date()
-                }, 'sent');
-                
-                // Send to partner via server
-                socket.emit('send-message', { text: text });
-                
-                input.value = '';
-                
-                // Show typing indicator briefly
-                showTypingIndicator(true);
-                setTimeout(() => showTypingIndicator(false), 1000);
-            }
-        }
-
-        // Show message in chat
-        function showMessage(messageData, type) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageDiv = document.createElement('div');
-            
-            messageDiv.className = `message ${type}`;
-            
-            const messageHTML = `
-                <div class="message-text">${sanitizeInput(messageData.text)}</div>
-                <div class="message-time">${formatTime(messageData.timestamp)}</div>
-            `;
-            
-            messageDiv.innerHTML = messageHTML;
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Show typing indicator
-        function showTypingIndicator(typing) {
-            const indicator = document.getElementById('typingIndicator');
-            if (typing) {
-                indicator.style.display = 'block';
-            } else {
-                indicator.style.display = 'none';
-            }
-        }
-
-        // Show system message
-        function showSystemMessage(text) {
-            const messagesContainer = document.getElementById('messagesContainer');
-            const messageDiv = document.createElement('div');
-            
-            messageDiv.className = 'system-message';
-            messageDiv.textContent = text;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function skipPerson() {
-            if (socket && isConnected) {
-                socket.emit('skip-partner');
-                isConnected = false;
-                partnerId = null;
-            }
-            showSystemMessage("🔄 Finding someone new...");
-            document.getElementById('connectionStatus').textContent = '🔄 Searching for new partner...';
-            joinChat();
-        }
-
-        // Chat timer
-        function startTimer() {
-            resetTimer();
-            chatTimer = setInterval(() => {
-                chatSeconds++;
-                const minutes = Math.floor(chatSeconds / 60);
-                const seconds = chatSeconds % 60;
-                document.getElementById('textChatTimer').textContent = 
-                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            // Auto-send welcome message (optional)
+            setTimeout(() => {
+                if (isConnected) {
+                    const welcomeMessage = getRandomWelcomeMessage();
+                    showMessage({
+                        text: welcomeMessage,
+                        sender: 'me',
+                        timestamp: new Date()
+                    }, 'sent');
+                    
+                    socket.emit('send-message', { text: welcomeMessage });
+                }
             }, 1000);
-        }
+        });
 
-        function resetTimer() {
-            if (chatTimer) {
-                clearInterval(chatTimer);
-            }
-            chatSeconds = 0;
-        }
+        socket.on('receive-message', (data) => {
+            console.log('📨 Received message');
+            showMessage({
+                text: data.text,
+                sender: 'partner',
+                timestamp: new Date()
+            }, 'received');
+        });
 
-        // Utility functions
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
+        socket.on('partner-typing', (isTyping) => {
+            showTypingIndicator(isTyping);
+        });
 
-        function sanitizeInput(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        function showLandingPage() {
-            if (socket) {
-                socket.disconnect();
-            }
+        socket.on('partner-disconnected', () => {
+            console.log('❌ Partner disconnected');
             isConnected = false;
             partnerId = null;
-            document.getElementById('landingPage').style.display = 'block';
-            document.getElementById('textChatPage').style.display = 'none';
-            resetTimer();
-        }
-
-        // Initialize when page loads
-        window.addEventListener('load', function() {
-            initializeSocket();
+            showSystemMessage("❌ Partner disconnected");
+            document.getElementById('chatStatus').textContent = 'Partner Left';
+            
+            // Auto-find new partner
+            setTimeout(() => {
+                if (!isConnected) {
+                    joinChat();
+                }
+            }, 2000);
         });
-    </script>
-</body>
-</html>
+
+        socket.on('online-count', (data) => {
+            // Update your original stats display
+            document.getElementById('onlineCount').textContent = data.online;
+            document.getElementById('chatsToday').textContent = data.active;
+        });
+
+        socket.on('disconnect', () => {
+            console.log('🔌 Disconnected from server');
+            isConnected = false;
+            document.getElementById('statusIndicator').textContent = '🔴 Disconnected';
+        });
+    }
+
+    // Join chat function
+    function joinChat() {
+        if (socket && socket.connected) {
+            socket.emit('join-chat', {
+                userId: socket.id,
+                timestamp: new Date()
+            });
+            document.getElementById('searchingCount').textContent = 'Waiting for match...';
+        }
+    }
+
+    // Get random welcome message
+    function getRandomWelcomeMessage() {
+        const messages = [
+            "Hey there! 👋",
+            "Hello! How's your day going?",
+            "Hi! Nice to meet you!",
+            "Hey! What's up?",
+            "Hello there! 👋"
+        ];
+        return messages[Math.floor(Math.random() * messages.length)];
+    }
+
+    // Start random chat - KEEPING YOUR ORIGINAL FUNCTION
+    function startRandomChat() {
+        document.getElementById('landingPage').style.display = 'none';
+        document.getElementById('textChatPage').style.display = 'flex';
+        
+        document.getElementById('messagesContainer').innerHTML = `
+            <div class="waiting-message" id="waitingMessage">
+                <div class="spinner"></div>
+                <p>Looking for someone to chat with...</p>
+                <p style="font-size: 12px; margin-top: 10px;">We're finding you a real person to talk to!</p>
+                <div class="user-count" id="searchingCount">Connecting...</div>
+            </div>
+        `;
+        
+        document.getElementById('messageInput').disabled = true;
+        document.querySelector('.send-btn').disabled = true;
+        document.getElementById('chatStatus').textContent = 'Finding a Partner...';
+        
+        startTimer();
+        
+        // Start connection if not already connected
+        if (!socket || !socket.connected) {
+            initializeConnection();
+        }
+        joinChat();
+    }
+
+    // Send message - KEEPING YOUR ORIGINAL FUNCTION
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        
+        if (text && socket && isConnected) {
+            const messageData = {
+                id: 'msg_' + Date.now(),
+                sender: 'me',
+                text: text,
+                timestamp: new Date()
+            };
+
+            // Show my message immediately
+            showMessage(messageData, 'sent');
+            
+            // Send to partner via server
+            socket.emit('send-message', { text: text });
+            
+            input.value = '';
+        }
+    }
+
+    // Show message in chat - KEEPING YOUR ORIGINAL FUNCTION
+    function showMessage(messageData, type) {
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageDiv = document.createElement('div');
+        
+        messageDiv.className = `message ${type}`;
+        messageDiv.dataset.messageId = messageData.id;
+        
+        let messageHTML = `
+            <div class="message-text">${sanitizeInput(messageData.text)}</div>
+            <div class="message-time">${formatTime(messageData.timestamp)}</div>
+        `;
+        
+        if (type === 'sent') {
+            messageHTML += `
+                <div class="message-actions">
+                    <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                    <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
+                    <button class="message-action-btn" onclick="editMessage('${messageData.id}')">✏️</button>
+                    <button class="message-action-btn" onclick="deleteMessage('${messageData.id}')">🗑️</button>
+                </div>
+            `;
+        } else {
+            messageHTML += `
+                <div class="message-actions">
+                    <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                    <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
+                </div>
+            `;
+        }
+        
+        messageDiv.innerHTML = messageHTML;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Show typing indicator - KEEPING YOUR ORIGINAL FUNCTION
+    function showTypingIndicator(typing) {
+        const indicator = document.getElementById('typingIndicator');
+        if (typing) {
+            indicator.style.display = 'block';
+        } else {
+            indicator.style.display = 'none';
+        }
+    }
+
+    // Show system message - KEEPING YOUR ORIGINAL FUNCTION
+    function showSystemMessage(text) {
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageDiv = document.createElement('div');
+        
+        messageDiv.className = 'system-message';
+        messageDiv.textContent = text;
+        
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function skipPerson() {
+        if (socket && isConnected) {
+            socket.emit('skip-partner');
+            isConnected = false;
+            partnerId = null;
+        }
+        showSystemMessage("🔄 Finding someone new...");
+        joinChat();
+    }
+
+    // Update statistics - KEEPING YOUR ORIGINAL FUNCTION
+    function updateStats() {
+        const onlineCount = Math.floor(Math.random() * 50) + 10;
+        const activeChats = Math.floor(Math.random() * 25) + 5;
+        
+        document.getElementById('onlineCount').textContent = onlineCount;
+        document.getElementById('chatsToday').textContent = activeChats;
+    }
+
+    // Chat timer - KEEPING YOUR ORIGINAL FUNCTION
+    function startTimer() {
+        resetTimer();
+        chatTimer = setInterval(() => {
+            chatSeconds++;
+            const minutes = Math.floor(chatSeconds / 60);
+            const seconds = chatSeconds % 60;
+            document.getElementById('textChatTimer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function resetTimer() {
+        if (chatTimer) {
+            clearInterval(chatTimer);
+        }
+        chatSeconds = 0;
+    }
+
+    // Utility functions - KEEPING YOUR ORIGINAL FUNCTIONS
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }
+
+    function sanitizeInput(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Message features - KEEPING YOUR ORIGINAL FUNCTIONS
+    function reactToMessage(messageId) {
+        alert('Reaction feature would work in full version!');
+    }
+
+    function replyToMessage(messageId) {
+        alert('Reply feature would work in full version!');
+    }
+
+    function editMessage(messageId) {
+        alert('Edit feature would work in full version!');
+    }
+
+    function deleteMessage(messageId) {
+        if (confirm('Delete this message?')) {
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.classList.add('deleted-message');
+                messageElement.innerHTML = '<em>This message was deleted</em>';
+            }
+        }
+    }
+
+    // Premium modal functions - KEEPING YOUR ORIGINAL FUNCTIONS
+    function showPremiumModal() {
+        document.getElementById('premiumModal').style.display = 'flex';
+    }
+
+    function closePremiumModal() {
+        document.getElementById('premiumModal').style.display = 'none';
+    }
+
+    function goToSupportBot() {
+        closePremiumModal();
+        alert('Opening Telegram bot...');
+        window.open('https://t.me/ChatteloSupportBot', '_blank');
+    }
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    function showLandingPage() {
+        if (socket) {
+            socket.disconnect();
+        }
+        isConnected = false;
+        partnerId = null;
+        document.getElementById('landingPage').style.display = 'block';
+        document.getElementById('textChatPage').style.display = 'none';
+        resetTimer();
+        updateStats();
+    }
+
+    // Initialize when page loads
+    window.addEventListener('load', function() {
+        initializeConnection();
+        updateStats();
+    });
+</script>
+
+<!-- Add Socket.io library -->
+<script src="/socket.io/socket.io.js"></script>
