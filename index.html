@@ -3,424 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chattelo - Random Anonymous Chat</title>
+    <title>Chattelo - Random Chat</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; min-height: 100vh; }
-        .container { max-width: 400px; margin: 0 auto; padding: 20px; text-align: center; }
-        .logo { font-size: 80px; margin: 30px 0 10px; animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        h1 { font-size: 32px; margin-bottom: 10px; font-weight: 700; }
-        .tagline { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
-        .btn { display: block; width: 100%; padding: 18px; margin: 15px 0; border: none; border-radius: 15px; font-size: 18px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-decoration: none; text-align: center; }
-        .btn-primary { background: #4cd964; color: white; box-shadow: 0 8px 25px rgba(76, 217, 100, 0.3); }
-        .btn-primary:hover { background: #44c554; transform: translateY(-2px); box-shadow: 0 12px 35px rgba(76, 217, 100, 0.4); }
-        .btn-premium { background: linear-gradient(135deg, #ff6b6b, #ffa726); color: white; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); position: relative; overflow: hidden; }
-        .premium-badge { position: absolute; top: -8px; right: -8px; background: #ffd700; color: #000; padding: 4px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; transform: rotate(15deg); }
-        .btn-crypto { background: linear-gradient(135deg, #f7931a, #8b5cf6); color: white; }
-        .pricing-card { background: rgba(255, 255, 255, 0.1); padding: 25px; border-radius: 20px; margin: 20px 0; backdrop-filter: blur(10px); }
-        .price { font-size: 36px; font-weight: bold; margin: 10px 0; background: linear-gradient(135deg, #ff6b6b, #ffa726); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .features-list { text-align: left; margin: 20px 0; }
-        .feature-item { display: flex; align-items: center; margin: 12px 0; font-size: 14px; }
-        .premium-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .premium-modal { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 350px; color: #333; }
-        .close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+        body { font-family: Arial, sans-serif; background: #667eea; color: white; text-align: center; padding: 20px; }
+        .container { max-width: 400px; margin: 0 auto; }
+        .logo { font-size: 60px; margin: 20px 0; }
+        .btn { display: block; width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; }
+        .btn-primary { background: #4cd964; color: white; }
+        .btn-premium { background: #ff6b6b; color: white; }
         .chat-container { display: none; flex-direction: column; height: 100vh; background: white; color: #333; }
-        .chat-header { background: #667eea; color: white; padding: 20px; text-align: center; position: relative; }
-        .back-btn { position: absolute; left: 20px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
-        .chat-area { flex: 1; display: flex; flex-direction: column; background: #f8f9fa; }
-        .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; }
-        .message.received { background: #e5e5ea; color: #000; align-self: flex-start; }
-        .message.sent { background: #007aff; color: white; align-self: flex-end; }
-        .message-input-container { padding: 15px; background: white; border-top: 1px solid #e5e5ea; display: flex; gap: 10px; }
-        .message-input { flex: 1; padding: 12px 16px; border: 1px solid #e5e5ea; border-radius: 20px; font-size: 14px; }
-        .send-btn { background: #007aff; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; }
-        .waiting-message { text-align: center; padding: 40px 20px; color: #666; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        .chat-header { background: #667eea; color: white; padding: 15px; }
+        .back-btn { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+        .messages-container { flex: 1; padding: 15px; overflow-y: auto; }
+        .message { max-width: 80%; padding: 10px; margin: 5px 0; border-radius: 10px; }
+        .received { background: #e5e5ea; align-self: flex-start; }
+        .sent { background: #007aff; color: white; align-self: flex-end; margin-left: auto; }
+        .message-input-container { padding: 10px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        .message-input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; }
+        .send-btn { background: #007aff; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; }
+        .waiting { text-align: center; padding: 30px; color: #666; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .chat-controls { display: flex; gap: 10px; padding: 15px; background: white; border-top: 1px solid #e5e5ea; }
-        .control-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; background: #f8f9fa; color: #333; cursor: pointer; }
-        .system-message { text-align: center; color: #666; font-style: italic; margin: 10px 0; font-size: 12px; }
-        .online-indicator { background: #4cd964; color: white; padding: 5px 10px; border-radius: 10px; font-size: 12px; margin: 5px 0; }
+        .system-msg { text-align: center; color: #666; font-style: italic; margin: 10px 0; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="container" id="landingPage">
+    <div class="container" id="mainPage">
         <div class="logo">💬</div>
         <h1>Chattelo</h1>
-        <p class="tagline">Chat with real people randomly</p>
-
-        <div class="online-indicator" id="onlineStatus">🟢 CHAT SYSTEM READY</div>
-
-        <button class="btn btn-primary" onclick="startChat()">💬 START RANDOM CHAT</button>
-        <button class="btn btn-premium" onclick="showPremiumModal()">🎥 PREMIUM VIDEO CHAT<div class="premium-badge">PRO</div></button>
-
-        <div class="pricing-card">
-            <h3>🎥 Premium Video Chat</h3>
-            <div class="price">$4.99</div>
-            <p style="font-size: 14px; opacity: 0.8;">Automatic payment system</p>
-            <div class="features-list">
-                <div class="feature-item">✅ HD Video Calls</div>
-                <div class="feature-item">✅ No Ads</div>
-                <div class="feature-item">✅ Priority Matching</div>
-                <div class="feature-item">✅ Unlimited Time</div>
-            </div>
-            <button class="btn btn-crypto" onclick="showPremiumModal()">🤖 GET PREMIUM</button>
-        </div>
-
-        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 15px;">
-            <h4>🌍 How to Test</h4>
-            <p style="margin: 8px 0; font-size: 14px;">1. Open this page in 2 browser tabs/windows</p>
-            <p style="margin: 8px 0; font-size: 14px;">2. Click START RANDOM CHAT in both</p>
-            <p style="margin: 8px 0; font-size: 14px;">3. Wait 2-5 seconds to connect</p>
-            <p style="margin: 8px 0; font-size: 14px;">4. Start chatting instantly!</p>
+        <p>Chat with random people</p>
+        
+        <button class="btn btn-primary" onclick="startChat()">START CHAT</button>
+        <button class="btn btn-premium" onclick="alert('Premium: Contact @ChatteloSupportBot')">PREMIUM</button>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px;">
+            <p><strong>How to test:</strong></p>
+            <p>1. Open this page in 2 browser windows</p>
+            <p>2. Click START CHAT in both</p>
+            <p>3. Wait to connect</p>
+            <p>4. Chat!</p>
         </div>
     </div>
 
     <div class="chat-container" id="chatPage">
         <div class="chat-header">
-            <button class="back-btn" onclick="goHome()">←</button>
-            <h3 id="chatStatus">Finding Partner...</h3>
-            <div>Time: <span id="timer">00:00</span></div>
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <h3 id="status">Finding someone...</h3>
         </div>
-        <div class="chat-area">
-            <div class="messages-container" id="messages">
-                <div class="waiting-message">
-                    <div class="spinner"></div>
-                    <p>Looking for someone to chat with...</p>
-                    <p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Initializing chat system...</p>
-                </div>
-            </div>
-            <div class="message-input-container">
-                <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." disabled>
-                <button class="send-btn" onclick="sendMsg()" disabled>➤</button>
-            </div>
-            <div class="chat-controls">
-                <button class="control-btn" onclick="nextPerson()">⏩ Next Person</button>
-                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
+        <div class="messages-container" id="messages">
+            <div class="waiting">
+                <div class="spinner"></div>
+                <p>Looking for people...</p>
+                <p id="searchText" style="font-size: 12px;">Searching...</p>
             </div>
         </div>
-    </div>
-
-    <div class="premium-overlay" id="premiumModal">
-        <div class="premium-modal">
-            <button class="close-btn" onclick="closeModal()">×</button>
-            <h2>🚀 Get Premium Access</h2>
-            <p style="margin: 15px 0; color: #666;">Unlock video chat features</p>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                <p><strong>Telegram Bot:</strong> @ChatteloSupportBot</p>
-                <p><strong>Command:</strong> Send /pay to activate</p>
-            </div>
-            <button class="btn btn-crypto" onclick="openBot()">🤖 Open Telegram Bot</button>
-            <button class="btn" style="background: #666; margin-top: 10px;" onclick="closeModal()">Close</button>
+        <div class="message-input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type message..." disabled>
+            <button class="send-btn" onclick="sendMessage()" disabled>➤</button>
         </div>
     </div>
 
     <script>
-        // SIMPLE CHAT SYSTEM - NO FIREBASE, NO EXTERNAL DEPENDENCIES
-        class ChatteloChat {
-            constructor() {
-                this.userId = null;
-                this.partnerId = null;
-                this.roomId = null;
-                this.timer = null;
-                this.seconds = 0;
-                this.checkInterval = null;
-                this.isConnected = false;
-                this.storageKey = 'chattelo_chat_data';
-                
-                this.init();
-            }
+        // SIMPLE CHAT SYSTEM
+        let userId = null;
+        let partnerId = null;
+        let roomId = null;
+        let isConnected = false;
+        let checkInterval = null;
 
-            init() {
-                this.cleanupOldData();
-                this.updateOnlineStatus();
-            }
+        // Generate unique ID
+        function generateId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        }
 
-            generateId() {
-                return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            }
+        // Get data from localStorage
+        function getData() {
+            return JSON.parse(localStorage.getItem('chattelo') || '{"waiting":[],"rooms":{}}');
+        }
 
-            getStorage() {
-                return JSON.parse(localStorage.getItem(this.storageKey) || '{}');
-            }
+        // Save data to localStorage
+        function saveData(data) {
+            localStorage.setItem('chattelo', JSON.stringify(data));
+        }
 
-            setStorage(data) {
-                localStorage.setItem(this.storageKey, JSON.stringify(data));
-            }
-
-            cleanupOldData() {
-                const data = this.getStorage();
-                const now = Date.now();
-                const fiveMinutesAgo = now - 300000;
-
-                // Clean old waiting users
-                if (data.waitingUsers) {
-                    data.waitingUsers = data.waitingUsers.filter(user => {
-                        const userTime = parseInt(user.id.split('_')[1]);
-                        return userTime > fiveMinutesAgo;
-                    });
+        // Clean old data
+        function cleanOldData() {
+            const data = getData();
+            const now = Date.now();
+            
+            // Remove users waiting more than 2 minutes
+            data.waiting = data.waiting.filter(user => {
+                const userTime = parseInt(user.id.split('_')[1]);
+                return now - userTime < 120000; // 2 minutes
+            });
+            
+            // Remove rooms older than 5 minutes
+            Object.keys(data.rooms).forEach(roomId => {
+                if (now - data.rooms[roomId].created > 300000) {
+                    delete data.rooms[roomId];
                 }
+            });
+            
+            saveData(data);
+        }
 
-                // Clean old rooms
-                if (data.rooms) {
-                    Object.keys(data.rooms).forEach(roomId => {
-                        if (data.rooms[roomId].created < fiveMinutesAgo) {
-                            delete data.rooms[roomId];
+        function startChat() {
+            document.getElementById('mainPage').style.display = 'none';
+            document.getElementById('chatPage').style.display = 'flex';
+            
+            userId = generateId();
+            document.getElementById('messages').innerHTML = '<div class="waiting"><div class="spinner"></div><p>Looking for people...</p><p id="searchText" style="font-size: 12px;">Joining chat...</p></div>';
+            document.getElementById('messageInput').disabled = true;
+            document.querySelector('.send-btn').disabled = true;
+            
+            cleanOldData();
+            joinWaitingList();
+            findPartner();
+        }
+
+        function joinWaitingList() {
+            const data = getData();
+            
+            // Remove if already waiting
+            data.waiting = data.waiting.filter(user => user.id !== userId);
+            
+            // Add to waiting list
+            data.waiting.push({
+                id: userId,
+                time: Date.now()
+            });
+            
+            saveData(data);
+            updateSearchText(`Waiting... (${data.waiting.length} users online)`);
+        }
+
+        function findPartner() {
+            checkInterval = setInterval(() => {
+                const data = getData();
+                const waiting = data.waiting || [];
+                
+                updateSearchText(`Searching... (${waiting.length} users online)`);
+                
+                // Find partner (not ourselves)
+                const partners = waiting.filter(user => user.id !== userId);
+                
+                if (partners.length > 0) {
+                    // Found partner!
+                    partnerId = partners[0].id;
+                    createRoom();
+                }
+            }, 2000);
+        }
+
+        function createRoom() {
+            clearInterval(checkInterval);
+            
+            const data = getData();
+            
+            // Remove both from waiting
+            data.waiting = data.waiting.filter(user => user.id !== userId && user.id !== partnerId);
+            
+            // Create room
+            roomId = 'room_' + Date.now();
+            data.rooms[roomId] = {
+                user1: userId,
+                user2: partnerId,
+                created: Date.now(),
+                messages: []
+            };
+            
+            saveData(data);
+            startChatSession();
+        }
+
+        function startChatSession() {
+            isConnected = true;
+            document.getElementById('status').textContent = 'Connected!';
+            document.getElementById('messages').innerHTML = '';
+            showSystemMessage('✅ Connected! Start chatting!');
+            
+            document.getElementById('messageInput').disabled = false;
+            document.querySelector('.send-btn').disabled = false;
+            document.getElementById('messageInput').focus();
+
+            // Listen for messages
+            listenForMessages();
+        }
+
+        function listenForMessages() {
+            setInterval(() => {
+                if (!isConnected) return;
+                
+                const data = getData();
+                const room = data.rooms[roomId];
+                
+                if (room && room.messages) {
+                    room.messages.forEach(msg => {
+                        if (msg.sender === partnerId && !msg.seen) {
+                            msg.seen = true;
+                            addMessage(msg.text, 'received');
                         }
                     });
+                    saveData(data);
                 }
+            }, 1000);
+        }
 
-                this.setStorage(data);
-            }
-
-            updateOnlineStatus() {
-                const data = this.getStorage();
-                const waitingCount = data.waitingUsers ? data.waitingUsers.length : 0;
-                document.getElementById('onlineStatus').textContent = `🟢 ${waitingCount} PEOPLE ONLINE NOW`;
-            }
-
-            startChat() {
-                document.getElementById('landingPage').style.display = 'none';
-                document.getElementById('chatPage').style.display = 'flex';
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text && roomId) {
+                // Show my message
+                addMessage(text, 'sent');
                 
-                this.userId = this.generateId();
-                document.getElementById('messages').innerHTML = '<div class="waiting-message"><div class="spinner"></div><p>Looking for someone to chat with...</p><p id="searchStatus" style="font-size: 12px; margin-top: 10px;">Searching for partners...</p></div>';
-                document.getElementById('messageInput').disabled = true;
-                document.querySelector('.send-btn').disabled = true;
+                // Save to room
+                const data = getData();
+                const room = data.rooms[roomId];
                 
-                this.startTimer();
-                this.addToWaitingList();
-                this.findPartner();
-            }
-
-            addToWaitingList() {
-                const data = this.getStorage();
-                if (!data.waitingUsers) data.waitingUsers = [];
-                
-                // Remove if already exists
-                data.waitingUsers = data.waitingUsers.filter(user => user.id !== this.userId);
-                
-                // Add new user
-                data.waitingUsers.push({
-                    id: this.userId,
-                    joined: Date.now()
-                });
-                
-                this.setStorage(data);
-                this.updateSearchStatus(`Added to waiting list... (${data.waitingUsers.length} users online)`);
-                this.updateOnlineStatus();
-            }
-
-            findPartner() {
-                this.checkInterval = setInterval(() => {
-                    const data = this.getStorage();
-                    const waitingUsers = data.waitingUsers || [];
-                    
-                    this.updateSearchStatus(`Searching... (${waitingUsers.length} users online)`);
-                    
-                    // Find a partner (not ourselves)
-                    const partners = waitingUsers.filter(user => user.id !== this.userId);
-                    
-                    if (partners.length > 0) {
-                        // Found a partner!
-                        this.partnerId = partners[0].id;
-                        this.createRoom();
-                    }
-                }, 2000);
-            }
-
-            createRoom() {
-                clearInterval(this.checkInterval);
-                
-                const data = this.getStorage();
-                
-                // Remove both from waiting list
-                data.waitingUsers = data.waitingUsers.filter(user => 
-                    user.id !== this.userId && user.id !== this.partnerId
-                );
-                
-                // Create room
-                this.roomId = 'room_' + Date.now();
-                if (!data.rooms) data.rooms = {};
-                
-                data.rooms[this.roomId] = {
-                    user1: this.userId,
-                    user2: this.partnerId,
-                    created: Date.now(),
-                    messages: []
-                };
-                
-                this.setStorage(data);
-                this.updateOnlineStatus();
-                this.startChatSession();
-            }
-
-            startChatSession() {
-                this.isConnected = true;
-                document.getElementById('chatStatus').textContent = 'Connected!';
-                document.getElementById('messages').innerHTML = '';
-                this.showSystemMsg('🎉 Connected with a random person! Say hello!');
-                
-                document.getElementById('messageInput').disabled = false;
-                document.querySelector('.send-btn').disabled = false;
-                document.getElementById('messageInput').focus();
-
-                // Start listening for messages
-                this.listenForMessages();
-            }
-
-            listenForMessages() {
-                setInterval(() => {
-                    if (!this.isConnected) return;
-                    
-                    const data = this.getStorage();
-                    const room = data.rooms[this.roomId];
-                    
-                    if (room && room.messages) {
-                        // Show new messages from partner
-                        room.messages.forEach(msg => {
-                            if (msg.sender === this.partnerId && !msg.displayedTo) {
-                                msg.displayedTo = this.userId;
-                                this.addMessage(msg.text, 'received');
-                            }
-                        });
-                        
-                        // Update storage
-                        this.setStorage(data);
-                    }
-                }, 1000);
-            }
-
-            sendMsg() {
-                const input = document.getElementById('messageInput');
-                const text = input.value.trim();
-                
-                if (text && this.roomId) {
-                    // Show my message immediately
-                    this.addMessage(text, 'sent');
-                    
-                    // Save message to room
-                    const data = this.getStorage();
-                    const room = data.rooms[this.roomId];
-                    
-                    if (room) {
-                        room.messages.push({
-                            sender: this.userId,
-                            text: text,
-                            time: Date.now(),
-                            displayedTo: this.userId
-                        });
-                        
-                        this.setStorage(data);
-                        input.value = '';
-                    }
+                if (room) {
+                    room.messages.push({
+                        sender: userId,
+                        text: text,
+                        time: Date.now(),
+                        seen: false
+                    });
+                    saveData(data);
+                    input.value = '';
                 }
-            }
-
-            addMessage(text, type) {
-                const container = document.getElementById('messages');
-                const div = document.createElement('div');
-                div.className = `message ${type}`;
-                div.textContent = text;
-                container.appendChild(div);
-                container.scrollTop = container.scrollHeight;
-            }
-
-            showSystemMsg(text) {
-                const container = document.getElementById('messages');
-                const div = document.createElement('div');
-                div.className = 'system-message';
-                div.textContent = text;
-                container.appendChild(div);
-                container.scrollTop = container.scrollHeight;
-            }
-
-            updateSearchStatus(text) {
-                const statusEl = document.getElementById('searchStatus');
-                if (statusEl) statusEl.textContent = text;
-            }
-
-            nextPerson() {
-                this.showSystemMsg('🔄 Finding new person...');
-                this.cleanup();
-                setTimeout(() => this.startChat(), 1000);
-            }
-
-            goHome() {
-                this.cleanup();
-                document.getElementById('landingPage').style.display = 'block';
-                document.getElementById('chatPage').style.display = 'none';
-                this.resetTimer();
-            }
-
-            cleanup() {
-                this.isConnected = false;
-                if (this.checkInterval) clearInterval(this.checkInterval);
-                
-                if (this.userId) {
-                    const data = this.getStorage();
-                    if (data.waitingUsers) {
-                        data.waitingUsers = data.waitingUsers.filter(user => user.id !== this.userId);
-                    }
-                    this.setStorage(data);
-                    this.updateOnlineStatus();
-                }
-            }
-
-            startTimer() {
-                this.resetTimer();
-                this.timer = setInterval(() => {
-                    this.seconds++;
-                    const min = Math.floor(this.seconds / 60);
-                    const sec = this.seconds % 60;
-                    document.getElementById('timer').textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-                }, 1000);
-            }
-
-            resetTimer() {
-                if (this.timer) clearInterval(this.timer);
-                this.seconds = 0;
             }
         }
 
-        // Initialize chat system
-        const chat = new ChatteloChat();
-
-        // UI Functions
-        function startChat() {
-            chat.startChat();
+        function addMessage(text, type) {
+            const container = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function sendMsg() {
-            chat.sendMsg();
+        function showSystemMessage(text) {
+            const container = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.className = 'system-msg';
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function nextPerson() {
-            chat.nextPerson();
+        function updateSearchText(text) {
+            const el = document.getElementById('searchText');
+            if (el) el.textContent = text;
         }
 
         function goHome() {
-            chat.goHome();
+            cleanup();
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('chatPage').style.display = 'none';
         }
 
-        function showPremiumModal() {
-            document.getElementById('premiumModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('premiumModal').style.display = 'none';
-        }
-
-        function openBot() {
-            window.open('https://t.me/ChatteloSupportBot', '_blank');
+        function cleanup() {
+            isConnected = false;
+            if (checkInterval) clearInterval(checkInterval);
+            
+            if (userId) {
+                const data = getData();
+                data.waiting = data.waiting.filter(user => user.id !== userId);
+                saveData(data);
+            }
         }
 
         // Handle Enter key
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMsg();
+            if (e.key === 'Enter') sendMessage();
         });
+
+        // Auto-clean on load
+        window.addEventListener('load', cleanOldData);
     </script>
 </body>
 </html>
