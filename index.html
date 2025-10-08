@@ -251,6 +251,8 @@
             border-radius: 18px;
             font-size: 14px;
             line-height: 1.4;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
         .message.received {
@@ -265,6 +267,125 @@
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
+        }
+
+        .message:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .message-actions {
+            position: absolute;
+            top: -25px;
+            right: 10px;
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            gap: 5px;
+        }
+
+        .message:hover .message-actions {
+            display: flex;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .message-action-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .reaction-btn:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .reactions-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .reaction {
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .reply-container {
+            background: rgba(0,0,0,0.05);
+            padding: 8px 12px;
+            border-radius: 12px;
+            margin-bottom: 5px;
+            border-left: 3px solid #007aff;
+        }
+
+        .reply-author {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+
+        .reply-text {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #007aff;
+            border-radius: 15px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .edit-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: #4cd964;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #ff3b30;
+            color: white;
         }
 
         .message-input-container {
@@ -363,6 +484,46 @@
             margin: 10px 0;
             font-size: 12px;
             padding: 8px;
+        }
+
+        /* Reaction Picker */
+        .reaction-picker {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 20px;
+            padding: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: none;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .reaction-option {
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reaction-option:hover {
+            background: #f0f0f0;
+            transform: scale(1.2);
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .deleted-message {
+            opacity: 0.5;
+            font-style: italic;
         }
     </style>
 </head>
@@ -520,7 +681,7 @@
     </div>
 
     <script>
-        // SIMPLE WORKING CHAT SYSTEM
+        // ENHANCED CHAT SYSTEM WITH REACTIONS & FEATURES
         let userId = null;
         let partnerId = null;
         let roomId = null;
@@ -528,6 +689,9 @@
         let chatSeconds = 0;
         let checkInterval = null;
         let isConnected = false;
+        let replyingTo = null;
+        let editingMessage = null;
+        let activeReactionPicker = null;
 
         // Generate unique ID
         function generateId() {
@@ -715,7 +879,7 @@
                     room.messages.forEach(msg => {
                         if (msg.sender === partnerId && !msg.seen) {
                             msg.seen = true;
-                            showMessage(msg.text, 'received');
+                            showMessage(msg, 'received');
                         }
                     });
                     saveChatData(data);
@@ -729,36 +893,324 @@
             const text = input.value.trim();
             
             if (text && roomId) {
+                const messageData = {
+                    id: 'msg_' + Date.now(),
+                    sender: userId,
+                    text: text,
+                    timestamp: Date.now(),
+                    seen: false,
+                    reactions: {},
+                    replyTo: replyingTo
+                };
+
                 // Show my message immediately
-                showMessage(text, 'sent');
+                showMessage(messageData, 'sent');
                 
                 // Save to database
                 const data = getChatData();
                 const room = data.rooms[roomId];
                 
                 if (room) {
-                    room.messages.push({
-                        sender: userId,
-                        text: text,
-                        timestamp: Date.now(),
-                        seen: false
-                    });
+                    room.messages.push(messageData);
                     saveChatData(data);
                     input.value = '';
+                    
+                    // Clear reply
+                    if (replyingTo) {
+                        clearReply();
+                    }
                 }
             }
         }
 
         // Show message in chat
-        function showMessage(text, type) {
+        function showMessage(messageData, type) {
             const messagesContainer = document.getElementById('messagesContainer');
             const messageDiv = document.createElement('div');
             
             messageDiv.className = `message ${type}`;
-            messageDiv.textContent = text;
+            messageDiv.dataset.messageId = messageData.id;
+            
+            // Check if message is deleted
+            if (messageData.deleted) {
+                messageDiv.classList.add('deleted-message');
+                messageDiv.innerHTML = `
+                    <em>This message was deleted</em>
+                    <div class="message-time">${formatTime(messageData.timestamp)}</div>
+                `;
+            } else {
+                let messageHTML = '';
+                
+                // Add reply if exists
+                if (messageData.replyTo) {
+                    const repliedMessage = findMessageById(messageData.replyTo);
+                    if (repliedMessage) {
+                        messageHTML += `
+                            <div class="reply-container">
+                                <div class="reply-author">${repliedMessage.sender === userId ? 'You' : 'Partner'}</div>
+                                <div class="reply-text">${repliedMessage.deleted ? '[Deleted]' : repliedMessage.text}</div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Message text
+                messageHTML += `
+                    <div class="message-text">${sanitizeInput(messageData.text)}</div>
+                `;
+                
+                // Reactions
+                if (Object.keys(messageData.reactions || {}).length > 0) {
+                    messageHTML += `<div class="reactions-container">`;
+                    Object.entries(messageData.reactions).forEach(([emoji, users]) => {
+                        if (users.length > 0) {
+                            messageHTML += `
+                                <div class="reaction">
+                                    <span>${emoji}</span>
+                                    <span>${users.length}</span>
+                                </div>
+                            `;
+                        }
+                    });
+                    messageHTML += `</div>`;
+                }
+                
+                // Message time
+                messageHTML += `<div class="message-time">${formatTime(messageData.timestamp)}</div>`;
+                
+                // Message actions (only for sent messages)
+                if (type === 'sent') {
+                    messageHTML += `
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                            <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
+                            <button class="message-action-btn" onclick="editMessage('${messageData.id}')">✏️</button>
+                            <button class="message-action-btn" onclick="deleteMessage('${messageData.id}')">🗑️</button>
+                        </div>
+                    `;
+                } else {
+                    messageHTML += `
+                        <div class="message-actions">
+                            <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
+                            <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
+                        </div>
+                    `;
+                }
+                
+                messageDiv.innerHTML = messageHTML;
+            }
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Find message by ID
+        function findMessageById(messageId) {
+            const data = getChatData();
+            const room = data.rooms[roomId];
+            if (room && room.messages) {
+                return room.messages.find(msg => msg.id === messageId);
+            }
+            return null;
+        }
+
+        // React to message
+        function reactToMessage(messageId) {
+            if (activeReactionPicker) {
+                activeReactionPicker.remove();
+            }
+            
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            const rect = messageElement.getBoundingClientRect();
+            
+            const picker = document.createElement('div');
+            picker.className = 'reaction-picker';
+            picker.style.display = 'flex';
+            picker.style.position = 'fixed';
+            picker.style.bottom = `${window.innerHeight - rect.top + 10}px`;
+            picker.style.left = `${rect.left + rect.width/2}px`;
+            picker.style.transform = 'translateX(-50%)';
+            
+            const reactions = ['👍', '❤️', '😂', '😮', '😢', '😡'];
+            reactions.forEach(emoji => {
+                const option = document.createElement('span');
+                option.className = 'reaction-option';
+                option.textContent = emoji;
+                option.onclick = () => addReaction(messageId, emoji);
+                picker.appendChild(option);
+            });
+            
+            document.body.appendChild(picker);
+            activeReactionPicker = picker;
+            
+            // Close picker when clicking outside
+            setTimeout(() => {
+                const closePicker = (e) => {
+                    if (!picker.contains(e.target)) {
+                        picker.remove();
+                        document.removeEventListener('click', closePicker);
+                        activeReactionPicker = null;
+                    }
+                };
+                document.addEventListener('click', closePicker);
+            }, 100);
+        }
+
+        // Add reaction to message
+        function addReaction(messageId, emoji) {
+            const data = getChatData();
+            const room = data.rooms[roomId];
+            
+            if (room && room.messages) {
+                const message = room.messages.find(msg => msg.id === messageId);
+                if (message) {
+                    if (!message.reactions) message.reactions = {};
+                    if (!message.reactions[emoji]) message.reactions[emoji] = [];
+                    
+                    // Remove user from other reactions on this message
+                    Object.keys(message.reactions).forEach(reactionEmoji => {
+                        message.reactions[reactionEmoji] = message.reactions[reactionEmoji].filter(id => id !== userId);
+                    });
+                    
+                    // Add user to this reaction
+                    if (!message.reactions[emoji].includes(userId)) {
+                        message.reactions[emoji].push(userId);
+                    }
+                    
+                    saveChatData(data);
+                    
+                    // Update message display
+                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (messageElement) {
+                        messageElement.remove();
+                        showMessage(message, message.sender === userId ? 'sent' : 'received');
+                    }
+                }
+            }
+            
+            if (activeReactionPicker) {
+                activeReactionPicker.remove();
+                activeReactionPicker = null;
+            }
+        }
+
+        // Reply to message
+        function replyToMessage(messageId) {
+            const message = findMessageById(messageId);
+            if (message) {
+                replyingTo = messageId;
+                document.getElementById('messageInput').placeholder = `Replying to: ${message.text.substring(0, 30)}...`;
+                document.getElementById('messageInput').focus();
+            }
+        }
+
+        // Clear reply
+        function clearReply() {
+            replyingTo = null;
+            document.getElementById('messageInput').placeholder = "Type your message...";
+        }
+
+        // Edit message
+        function editMessage(messageId) {
+            const message = findMessageById(messageId);
+            if (message && message.sender === userId && !message.deleted) {
+                editingMessage = messageId;
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                
+                messageElement.innerHTML = `
+                    <input type="text" class="edit-input" value="${sanitizeInput(message.text)}" id="editInput-${messageId}">
+                    <div class="edit-buttons">
+                        <button class="edit-btn save-btn" onclick="saveEdit('${messageId}')">Save</button>
+                        <button class="edit-btn cancel-btn" onclick="cancelEdit('${messageId}')">Cancel</button>
+                    </div>
+                `;
+                
+                const input = document.getElementById(`editInput-${messageId}`);
+                input.focus();
+                input.select();
+            }
+        }
+
+        // Save edited message
+        function saveEdit(messageId) {
+            const input = document.getElementById(`editInput-${messageId}`);
+            const newText = input.value.trim();
+            
+            if (newText) {
+                const data = getChatData();
+                const room = data.rooms[roomId];
+                
+                if (room && room.messages) {
+                    const message = room.messages.find(msg => msg.id === messageId);
+                    if (message) {
+                        message.text = newText;
+                        message.edited = true;
+                        saveChatData(data);
+                        
+                        // Update display
+                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                        if (messageElement) {
+                            messageElement.remove();
+                            showMessage(message, 'sent');
+                        }
+                    }
+                }
+            }
+            
+            editingMessage = null;
+        }
+
+        // Cancel edit
+        function cancelEdit(messageId) {
+            const message = findMessageById(messageId);
+            if (message) {
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                if (messageElement) {
+                    messageElement.remove();
+                    showMessage(message, 'sent');
+                }
+            }
+            editingMessage = null;
+        }
+
+        // Delete message
+        function deleteMessage(messageId) {
+            if (confirm('Are you sure you want to delete this message?')) {
+                const data = getChatData();
+                const room = data.rooms[roomId];
+                
+                if (room && room.messages) {
+                    const message = room.messages.find(msg => msg.id === messageId);
+                    if (message && message.sender === userId) {
+                        message.deleted = true;
+                        message.text = '[Deleted]';
+                        saveChatData(data);
+                        
+                        // Update display
+                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+                        if (messageElement) {
+                            messageElement.classList.add('deleted-message');
+                            messageElement.innerHTML = `
+                                <em>This message was deleted</em>
+                                <div class="message-time">${formatTime(message.timestamp)}</div>
+                            `;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Format time
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+
+        // Sanitize input
+        function sanitizeInput(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Show system message
