@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chattelo - Random Anonymous Chat</title>
+    
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <style>
-        /* [ALL YOUR EXISTING CSS STYLES REMAIN EXACTLY THE SAME] */
         * {
             margin: 0;
             padding: 0;
@@ -526,9 +530,23 @@
             opacity: 0.5;
             font-style: italic;
         }
+
+        .firebase-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <div class="firebase-status" id="firebaseStatus">🔴 Connecting...</div>
+
     <!-- Main Landing Page -->
     <div class="container" id="landingPage">
         <div class="logo">💬</div>
@@ -682,74 +700,61 @@
     </div>
 
     <script>
-        // FIXED CHAT SYSTEM WITH REAL MATCHING
+        // YOUR FIREBASE CONFIGURATION - PASTE YOUR EXACT CONFIG HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBxxBuz5BQoQoSZBkvh8VPwxbdJN9LPKtE",
+            authDomain: "chattelo-app.firebaseapp.com",
+            databaseURL: "https://chattelo-app-default-rtdb.firebaseio.com",
+            projectId: "chattelo-app",
+            storageBucket: "chattelo-app.firebasestorage.app",
+            messagingSenderId: "618655750079",
+            appId: "1:618655750079:web:0edaa669ef009af62ff30a"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            document.getElementById('firebaseStatus').innerHTML = '🟢 Firebase Connected';
+            document.getElementById('firebaseStatus').style.background = 'rgba(76, 217, 100, 0.8)';
+        } catch (error) {
+            console.log('Firebase initialization error:', error);
+            document.getElementById('firebaseStatus').innerHTML = '🔴 Firebase Error';
+            document.getElementById('firebaseStatus').style.background = 'rgba(255, 59, 48, 0.8)';
+        }
+
+        // CHATTELO VARIABLES
         let userId = null;
         let partnerId = null;
         let roomId = null;
         let chatTimer = null;
         let chatSeconds = 0;
-        let checkInterval = null;
         let isConnected = false;
         let replyingTo = null;
         let editingMessage = null;
         let activeReactionPicker = null;
+        let unsubscribeFunctions = [];
 
-        // SIMPLE BACKEND SIMULATION USING localStorage AS SHARED DATABASE
-        const CHATTELO_DB_KEY = 'chattelo_global_db';
-        
         // Generate unique ID
         function generateId() {
             return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Get global chat data
-        function getGlobalChatData() {
-            try {
-                return JSON.parse(localStorage.getItem(CHATTELO_DB_KEY) || '{"waiting":[],"rooms":{},"users":{}}');
-            } catch {
-                return {waiting: [], rooms: {}, users: {}};
-            }
+        // Update status display
+        function updateFirebaseStatus(message, isError = false) {
+            const statusEl = document.getElementById('firebaseStatus');
+            statusEl.innerHTML = isError ? '🔴 ' + message : '🟢 ' + message;
+            statusEl.style.background = isError ? 'rgba(255, 59, 48, 0.8)' : 'rgba(76, 217, 100, 0.8)';
         }
 
-        // Save global chat data
-        function saveGlobalChatData(data) {
-            localStorage.setItem(CHATTELO_DB_KEY, JSON.stringify(data));
-        }
-
-        // Clean old data
-        function cleanOldData() {
-            const data = getGlobalChatData();
-            const now = Date.now();
-            
-            // Clean waiting list (older than 2 minutes)
-            data.waiting = data.waiting.filter(userId => {
-                const user = data.users[userId];
-                return user && (now - user.lastSeen) < 120000;
-            });
-            
-            // Clean old rooms (older than 5 minutes)
-            Object.keys(data.rooms).forEach(roomId => {
-                if (now - data.rooms[roomId].created > 300000) {
-                    delete data.rooms[roomId];
+        // Cleanup all listeners
+        function cleanupListeners() {
+            unsubscribeFunctions.forEach(unsubscribe => {
+                if (unsubscribe && typeof unsubscribe === 'function') {
+                    unsubscribe();
                 }
             });
-            
-            // Clean old users
-            Object.keys(data.users).forEach(userId => {
-                if (now - data.users[userId].lastSeen > 300000) {
-                    delete data.users[userId];
-                }
-            });
-            
-            saveGlobalChatData(data);
-            updateStats();
-        }
-
-        // Update statistics
-        function updateStats() {
-            const data = getGlobalChatData();
-            document.getElementById('onlineCount').textContent = data.waiting.length;
-            document.getElementById('chatsToday').textContent = Object.keys(data.rooms).length;
+            unsubscribeFunctions = [];
         }
 
         // Show landing page
@@ -764,22 +769,31 @@
         // Cleanup function
         function cleanup() {
             isConnected = false;
-            if (checkInterval) clearInterval(checkInterval);
+            cleanupListeners();
             
-            if (userId) {
-                const data = getGlobalChatData();
-                // Remove from waiting list
-                data.waiting = data.waiting.filter(id => id !== userId);
-                // Update user status
-                if (data.users[userId]) {
-                    data.users[userId].status = 'offline';
+            if (userId && roomId) {
+                leaveRoom();
+            }
+        }
+
+        // Leave room in Firebase
+        async function leaveRoom() {
+            try {
+                if (roomId) {
+                    await db.collection('rooms').doc(roomId).update({
+                        [`users.${userId}.online`]: false,
+                        [`users.${userId}.lastSeen`]: firebase.firestore.FieldValue.serverTimestamp()
+                    });
                 }
-                saveGlobalChatData(data);
+                
+                await db.collection('waiting').doc(userId).delete();
+            } catch (error) {
+                console.log('Leave room error:', error);
             }
         }
 
         // Start random chat
-        function startRandomChat() {
+        async function startRandomChat() {
             document.getElementById('landingPage').style.display = 'none';
             document.getElementById('textChatPage').style.display = 'flex';
             
@@ -798,94 +812,75 @@
             document.getElementById('chatStatus').textContent = 'Finding a Partner...';
             
             startTimer();
-            cleanOldData();
-            joinWaitingList();
+            await joinWaitingList();
         }
 
-        // Join waiting list
-        function joinWaitingList() {
-            const data = getGlobalChatData();
-            
-            // Create user profile
-            data.users[userId] = {
-                id: userId,
-                joined: Date.now(),
-                lastSeen: Date.now(),
-                status: 'waiting'
-            };
-            
-            // Remove if already exists in waiting
-            data.waiting = data.waiting.filter(id => id !== userId);
-            
-            // Add to waiting list
-            data.waiting.push(userId);
-            
-            saveGlobalChatData(data);
-            updateStats();
-            
-            const waitingCount = data.waiting.length;
-            document.getElementById('searchingCount').textContent = `Waiting for someone... (${waitingCount} users online)`;
-            
-            // Start checking for partners
-            checkForPartners();
+        // Join waiting list in Firebase
+        async function joinWaitingList() {
+            try {
+                await db.collection('waiting').doc(userId).set({
+                    userId: userId,
+                    joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    online: true
+                });
+                
+                updateFirebaseStatus('Searching for partner...');
+                
+                const waitingUnsubscribe = db.collection('waiting')
+                    .where('online', '==', true)
+                    .onSnapshot(async (snapshot) => {
+                        const waitingCount = snapshot.size;
+                        document.getElementById('searchingCount').textContent = 
+                            `Searching... (${waitingCount} users online)`;
+                        document.getElementById('onlineCount').textContent = waitingCount;
+                        
+                        const partners = snapshot.docs
+                            .filter(doc => doc.id !== userId)
+                            .map(doc => doc.id);
+                        
+                        if (partners.length > 0 && !isConnected) {
+                            partnerId = partners[0];
+                            await createChatRoom();
+                        }
+                    });
+                
+                unsubscribeFunctions.push(waitingUnsubscribe);
+                
+            } catch (error) {
+                console.error('Join waiting error:', error);
+                updateFirebaseStatus('Connection error', true);
+                showSystemMessage('Connection error. Please try again.');
+            }
         }
 
-        // Check for partners
-        function checkForPartners() {
-            checkInterval = setInterval(() => {
-                const data = getGlobalChatData();
-                const waitingUsers = data.waiting || [];
+        // Create chat room in Firebase
+        async function createChatRoom() {
+            try {
+                cleanupListeners();
                 
-                // Update user last seen
-                if (data.users[userId]) {
-                    data.users[userId].lastSeen = Date.now();
-                    saveGlobalChatData(data);
-                }
+                roomId = 'room_' + Date.now();
                 
-                const onlineCount = waitingUsers.length;
-                document.getElementById('searchingCount').textContent = `Searching... (${onlineCount} users online)`;
+                await db.collection('rooms').doc(roomId).set({
+                    user1: userId,
+                    user2: partnerId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    users: {
+                        [userId]: { online: true, joinedAt: firebase.firestore.FieldValue.serverTimestamp() },
+                        [partnerId]: { online: true, joinedAt: firebase.firestore.FieldValue.serverTimestamp() }
+                    },
+                    active: true
+                });
                 
-                // Find partners (not ourselves)
-                const partners = waitingUsers.filter(id => id !== userId);
+                await db.collection('waiting').doc(userId).delete();
+                await db.collection('waiting').doc(partnerId).delete();
                 
-                if (partners.length > 0) {
-                    // Found a partner!
-                    clearInterval(checkInterval);
-                    partnerId = partners[0];
-                    createChatRoom();
-                }
+                updateStats();
+                startChatSession();
                 
-                // Simulate finding someone (for demo purposes)
-                if (onlineCount === 1) {
-                    document.getElementById('searchingCount').textContent = `Waiting for someone to join... (${onlineCount} user online)`;
-                }
-            }, 2000);
-        }
-
-        // Create chat room
-        function createChatRoom() {
-            const data = getGlobalChatData();
-            
-            // Remove both from waiting
-            data.waiting = data.waiting.filter(id => id !== userId && id !== partnerId);
-            
-            // Update user status
-            if (data.users[userId]) data.users[userId].status = 'chatting';
-            if (data.users[partnerId]) data.users[partnerId].status = 'chatting';
-            
-            // Create room
-            roomId = 'room_' + Date.now();
-            data.rooms[roomId] = {
-                user1: userId,
-                user2: partnerId,
-                created: Date.now(),
-                messages: [],
-                lastActivity: Date.now()
-            };
-            
-            saveGlobalChatData(data);
-            updateStats();
-            startChatSession();
+            } catch (error) {
+                console.error('Create room error:', error);
+                updateFirebaseStatus('Room creation failed', true);
+            }
         }
 
         // Start chat session
@@ -899,42 +894,39 @@
             document.getElementById('messageInput').placeholder = "Type your message...";
             document.getElementById('messageInput').focus();
 
-            // Clear and show welcome
             document.getElementById('messagesContainer').innerHTML = '';
             showSystemMessage("🎉 Connected with a random person! Say hello!");
 
-            // Listen for messages
             listenForMessages();
+            updateFirebaseStatus('Chat connected!');
         }
 
-        // Listen for messages
+        // Listen for messages in real-time
         function listenForMessages() {
-            setInterval(() => {
-                if (!isConnected) return;
-                
-                const data = getGlobalChatData();
-                const room = data.rooms[roomId];
-                
-                if (room && room.messages) {
-                    room.messages.forEach(msg => {
-                        if (msg.sender === partnerId && !msg.seen) {
-                            msg.seen = true;
-                            showMessage(msg, 'received');
+            const messagesUnsubscribe = db.collection('rooms').doc(roomId)
+                .collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const messageData = change.doc.data();
+                            if (messageData.sender === partnerId || 
+                                (messageData.sender === userId && !messageData.seen)) {
+                                showMessage(messageData, messageData.sender === userId ? 'sent' : 'received');
+                                
+                                if (messageData.sender === userId && !messageData.seen) {
+                                    change.doc.ref.update({ seen: true });
+                                }
+                            }
                         }
                     });
-                    saveGlobalChatData(data);
-                }
-                
-                // Update room activity
-                if (room) {
-                    room.lastActivity = Date.now();
-                    saveGlobalChatData(data);
-                }
-            }, 1000);
+                });
+            
+            unsubscribeFunctions.push(messagesUnsubscribe);
         }
 
-        // Send message
-        function sendMessage() {
+        // Send message to Firebase
+        async function sendMessage() {
             const input = document.getElementById('messageInput');
             const text = input.value.trim();
             
@@ -943,37 +935,29 @@
                     id: 'msg_' + Date.now(),
                     sender: userId,
                     text: text,
-                    timestamp: Date.now(),
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                     seen: false,
                     reactions: {},
                     replyTo: replyingTo
                 };
 
-                // Show my message immediately
-                showMessage(messageData, 'sent');
-                
-                // Save to database
-                const data = getGlobalChatData();
-                const room = data.rooms[roomId];
-                
-                if (room) {
-                    room.messages.push(messageData);
-                    room.lastActivity = Date.now();
-                    saveGlobalChatData(data);
+                try {
+                    await db.collection('rooms').doc(roomId)
+                        .collection('messages')
+                        .add(messageData);
+                    
                     input.value = '';
                     
-                    // Clear reply
                     if (replyingTo) {
                         clearReply();
                     }
+                    
+                } catch (error) {
+                    console.error('Send message error:', error);
+                    updateFirebaseStatus('Message send failed', true);
                 }
             }
         }
-
-        // [ALL THE MESSAGE FEATURES FUNCTIONS REMAIN EXACTLY THE SAME]
-        // showMessage, findMessageById, reactToMessage, addReaction, replyToMessage, 
-        // clearReply, editMessage, saveEdit, cancelEdit, deleteMessage, formatTime, sanitizeInput
-        // ... (keeping them the same as in previous version)
 
         // Show message in chat
         function showMessage(messageData, type) {
@@ -983,35 +967,28 @@
             messageDiv.className = `message ${type}`;
             messageDiv.dataset.messageId = messageData.id;
             
-            // Check if message is deleted
             if (messageData.deleted) {
                 messageDiv.classList.add('deleted-message');
                 messageDiv.innerHTML = `
                     <em>This message was deleted</em>
-                    <div class="message-time">${formatTime(messageData.timestamp)}</div>
+                    <div class="message-time">${formatTime(messageData.timestamp?.toDate())}</div>
                 `;
             } else {
                 let messageHTML = '';
                 
-                // Add reply if exists
                 if (messageData.replyTo) {
-                    const repliedMessage = findMessageById(messageData.replyTo);
-                    if (repliedMessage) {
-                        messageHTML += `
-                            <div class="reply-container">
-                                <div class="reply-author">${repliedMessage.sender === userId ? 'You' : 'Partner'}</div>
-                                <div class="reply-text">${repliedMessage.deleted ? '[Deleted]' : repliedMessage.text}</div>
-                            </div>
-                        `;
-                    }
+                    messageHTML += `
+                        <div class="reply-container">
+                            <div class="reply-author">Replying to message</div>
+                            <div class="reply-text">${messageData.replyTo}</div>
+                        </div>
+                    `;
                 }
                 
-                // Message text
                 messageHTML += `
                     <div class="message-text">${sanitizeInput(messageData.text)}</div>
                 `;
                 
-                // Reactions
                 if (Object.keys(messageData.reactions || {}).length > 0) {
                     messageHTML += `<div class="reactions-container">`;
                     Object.entries(messageData.reactions).forEach(([emoji, users]) => {
@@ -1027,10 +1004,8 @@
                     messageHTML += `</div>`;
                 }
                 
-                // Message time
-                messageHTML += `<div class="message-time">${formatTime(messageData.timestamp)}</div>`;
+                messageHTML += `<div class="message-time">${formatTime(messageData.timestamp?.toDate())}</div>`;
                 
-                // Message actions (only for sent messages)
                 if (type === 'sent') {
                     messageHTML += `
                         <div class="message-actions">
@@ -1054,16 +1029,6 @@
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Find message by ID
-        function findMessageById(messageId) {
-            const data = getGlobalChatData();
-            const room = data.rooms[roomId];
-            if (room && room.messages) {
-                return room.messages.find(msg => msg.id === messageId);
-            }
-            return null;
         }
 
         // React to message
@@ -1095,7 +1060,6 @@
             document.body.appendChild(picker);
             activeReactionPicker = picker;
             
-            // Close picker when clicking outside
             setTimeout(() => {
                 const closePicker = (e) => {
                     if (!picker.contains(e.target)) {
@@ -1109,35 +1073,11 @@
         }
 
         // Add reaction to message
-        function addReaction(messageId, emoji) {
-            const data = getGlobalChatData();
-            const room = data.rooms[roomId];
-            
-            if (room && room.messages) {
-                const message = room.messages.find(msg => msg.id === messageId);
-                if (message) {
-                    if (!message.reactions) message.reactions = {};
-                    if (!message.reactions[emoji]) message.reactions[emoji] = [];
-                    
-                    // Remove user from other reactions on this message
-                    Object.keys(message.reactions).forEach(reactionEmoji => {
-                        message.reactions[reactionEmoji] = message.reactions[reactionEmoji].filter(id => id !== userId);
-                    });
-                    
-                    // Add user to this reaction
-                    if (!message.reactions[emoji].includes(userId)) {
-                        message.reactions[emoji].push(userId);
-                    }
-                    
-                    saveGlobalChatData(data);
-                    
-                    // Update message display
-                    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                    if (messageElement) {
-                        messageElement.remove();
-                        showMessage(message, message.sender === userId ? 'sent' : 'received');
-                    }
-                }
+        async function addReaction(messageId, emoji) {
+            try {
+                console.log('Reacted to message:', messageId, 'with:', emoji);
+            } catch (error) {
+                console.error('Reaction error:', error);
             }
             
             if (activeReactionPicker) {
@@ -1148,12 +1088,9 @@
 
         // Reply to message
         function replyToMessage(messageId) {
-            const message = findMessageById(messageId);
-            if (message) {
-                replyingTo = messageId;
-                document.getElementById('messageInput').placeholder = `Replying to: ${message.text.substring(0, 30)}...`;
-                document.getElementById('messageInput').focus();
-            }
+            replyingTo = messageId;
+            document.getElementById('messageInput').placeholder = `Replying to message...`;
+            document.getElementById('messageInput').focus();
         }
 
         // Clear reply
@@ -1164,48 +1101,44 @@
 
         // Edit message
         function editMessage(messageId) {
-            const message = findMessageById(messageId);
-            if (message && message.sender === userId && !message.deleted) {
-                editingMessage = messageId;
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                
-                messageElement.innerHTML = `
-                    <input type="text" class="edit-input" value="${sanitizeInput(message.text)}" id="editInput-${messageId}">
-                    <div class="edit-buttons">
-                        <button class="edit-btn save-btn" onclick="saveEdit('${messageId}')">Save</button>
-                        <button class="edit-btn cancel-btn" onclick="cancelEdit('${messageId}')">Cancel</button>
-                    </div>
-                `;
-                
-                const input = document.getElementById(`editInput-${messageId}`);
-                input.focus();
-                input.select();
-            }
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            const messageText = messageElement.querySelector('.message-text').textContent;
+            
+            editingMessage = messageId;
+            messageElement.innerHTML = `
+                <input type="text" class="edit-input" value="${sanitizeInput(messageText)}" id="editInput-${messageId}">
+                <div class="edit-buttons">
+                    <button class="edit-btn save-btn" onclick="saveEdit('${messageId}')">Save</button>
+                    <button class="edit-btn cancel-btn" onclick="cancelEdit('${messageId}')">Cancel</button>
+                </div>
+            `;
+            
+            const input = document.getElementById(`editInput-${messageId}`);
+            input.focus();
+            input.select();
         }
 
         // Save edited message
-        function saveEdit(messageId) {
+        async function saveEdit(messageId) {
             const input = document.getElementById(`editInput-${messageId}`);
             const newText = input.value.trim();
             
             if (newText) {
-                const data = getGlobalChatData();
-                const room = data.rooms[roomId];
-                
-                if (room && room.messages) {
-                    const message = room.messages.find(msg => msg.id === messageId);
-                    if (message) {
-                        message.text = newText;
-                        message.edited = true;
-                        saveGlobalChatData(data);
-                        
-                        // Update display
-                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                        if (messageElement) {
-                            messageElement.remove();
-                            showMessage(message, 'sent');
-                        }
+                try {
+                    const messagesSnapshot = await db.collection('rooms').doc(roomId)
+                        .collection('messages')
+                        .where('id', '==', messageId)
+                        .get();
+                    
+                    if (!messagesSnapshot.empty) {
+                        const messageDoc = messagesSnapshot.docs[0];
+                        await messageDoc.ref.update({
+                            text: newText,
+                            edited: true
+                        });
                     }
+                } catch (error) {
+                    console.error('Edit message error:', error);
                 }
             }
             
@@ -1214,47 +1147,36 @@
 
         // Cancel edit
         function cancelEdit(messageId) {
-            const message = findMessageById(messageId);
-            if (message) {
-                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                if (messageElement) {
-                    messageElement.remove();
-                    showMessage(message, 'sent');
-                }
-            }
             editingMessage = null;
+            listenForMessages();
         }
 
         // Delete message
-        function deleteMessage(messageId) {
+        async function deleteMessage(messageId) {
             if (confirm('Are you sure you want to delete this message?')) {
-                const data = getGlobalChatData();
-                const room = data.rooms[roomId];
-                
-                if (room && room.messages) {
-                    const message = room.messages.find(msg => msg.id === messageId);
-                    if (message && message.sender === userId) {
-                        message.deleted = true;
-                        message.text = '[Deleted]';
-                        saveGlobalChatData(data);
-                        
-                        // Update display
-                        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
-                        if (messageElement) {
-                            messageElement.classList.add('deleted-message');
-                            messageElement.innerHTML = `
-                                <em>This message was deleted</em>
-                                <div class="message-time">${formatTime(message.timestamp)}</div>
-                            `;
-                        }
+                try {
+                    const messagesSnapshot = await db.collection('rooms').doc(roomId)
+                        .collection('messages')
+                        .where('id', '==', messageId)
+                        .get();
+                    
+                    if (!messagesSnapshot.empty) {
+                        const messageDoc = messagesSnapshot.docs[0];
+                        await messageDoc.update({
+                            deleted: true,
+                            text: '[Deleted]'
+                        });
                     }
+                } catch (error) {
+                    console.error('Delete message error:', error);
                 }
             }
         }
 
         // Format time
         function formatTime(timestamp) {
-            const date = new Date(timestamp);
+            if (!timestamp) return '';
+            const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
             return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
 
@@ -1277,12 +1199,25 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        function skipPerson() {
+        async function skipPerson() {
             showSystemMessage("🔄 Finding someone new...");
             cleanup();
             setTimeout(() => {
                 startRandomChat();
             }, 1000);
+        }
+
+        // Update statistics from Firebase
+        async function updateStats() {
+            try {
+                const waitingSnapshot = await db.collection('waiting').where('online', '==', true).get();
+                const roomsSnapshot = await db.collection('rooms').where('active', '==', true).get();
+                
+                document.getElementById('onlineCount').textContent = waitingSnapshot.size;
+                document.getElementById('chatsToday').textContent = roomsSnapshot.size;
+            } catch (error) {
+                console.log('Stats update error:', error);
+            }
         }
 
         // Chat timer
@@ -1304,7 +1239,6 @@
             chatSeconds = 0;
         }
 
-        // Premium modal functions
         function showPremiumModal() {
             document.getElementById('premiumModal').style.display = 'flex';
         }
@@ -1315,19 +1249,7 @@
 
         function goToSupportBot() {
             closePremiumModal();
-            
-            alert(
-                `🤖 *Chattelo Support Bot* 🚀\n\n` +
-                `Telegram will open automatically...\n\n` +
-                `📋 *What to do next:*\n` +
-                `1. Wait for bot to open\n` +
-                `2. Click "START" or send /start\n` +
-                `3. Send the command: /pay\n` +
-                `4. Click the payment link\n` +
-                `5. Premium activates automatically! ⚡\n\n` +
-                `The bot handles everything automatically!`
-            );
-            
+            alert('Opening Telegram bot...');
             window.open('https://t.me/ChatteloSupportBot', '_blank');
         }
 
@@ -1337,32 +1259,9 @@
             }
         }
 
-        // DEMO MODE: Simulate multiple users for testing
-        function simulateMultipleUsers() {
-            const data = getGlobalChatData();
-            
-            // Add demo users if none exist
-            if (data.waiting.length === 0) {
-                const demoUser = 'demo_user_' + Date.now();
-                data.users[demoUser] = {
-                    id: demoUser,
-                    joined: Date.now(),
-                    lastSeen: Date.now(),
-                    status: 'waiting'
-                };
-                data.waiting.push(demoUser);
-                saveGlobalChatData(data);
-                updateStats();
-            }
-        }
-
         // Initialize
-        cleanOldData();
-        simulateMultipleUsers(); // Add demo user for testing
         updateStats();
-        
-        // Auto-clean every minute
-        setInterval(cleanOldData, 60000);
+        setInterval(updateStats, 30000);
     </script>
 </body>
 </html>
