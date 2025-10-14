@@ -4,18 +4,18 @@ import os
 import json
 import sqlite3
 from datetime import datetime, timedelta
+import hashlib
 
 app = Flask(__name__)
 
 BOT_TOKEN = os.environ.get('BOT_TOKEN', "8080306073:AAHy6IO4j_uResEEN_H2K-PJ2TkPws79mH8")
 TELEGRAM_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
+# Payment bot configuration
+PAYMENT_BOT_URL = "https://chattelo-support-bot.onrender.com"
+
 waiting_users = []
 active_chats = {}
-
-# Premium users database (in production, use a real database)
-premium_users = {}
-user_payments = {}
 
 # Initialize SQLite database
 def init_db():
@@ -25,7 +25,13 @@ def init_db():
                  (user_id INTEGER PRIMARY KEY, 
                   premium_until TEXT,
                   payment_date TEXT,
+                  premium_code TEXT UNIQUE,
                   stars_received INTEGER DEFAULT 0)''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS used_codes
+                 (code TEXT PRIMARY KEY,
+                  user_id INTEGER,
+                  used_at TEXT)''')
     conn.commit()
     conn.close()
 
@@ -42,8 +48,57 @@ def is_premium(user_id):
         return datetime.now() < premium_until
     return False
 
+def activate_premium_with_code(user_id, premium_code, duration_days=30):
+    """Activate premium using code from payment bot"""
+    conn = sqlite3.connect('premium_users.db')
+    c = conn.cursor()
+    
+    # Check if code was already used
+    c.execute("SELECT * FROM used_codes WHERE code = ?", (premium_code,))
+    if c.fetchone():
+        conn.close()
+        return False, "❌ This code has already been used!"
+    
+    # Verify code format (basic validation)
+    if not premium_code.startswith('CHATTELO-'):
+        conn.close()
+        return False, "❌ Invalid premium code format!"
+    
+    # Activate premium
+    premium_until = datetime.now() + timedelta(days=duration_days)
+    
+    c.execute('''INSERT OR REPLACE INTO premium_users 
+                 (user_id, premium_until, payment_date, premium_code) 
+                 VALUES (?, ?, ?, ?)''', 
+              (user_id, premium_until.isoformat(), datetime.now().isoformat(), premium_code))
+    
+    # Mark code as used
+    c.execute('''INSERT INTO used_codes (code, user_id, used_at)
+                 VALUES (?, ?, ?)''', 
+              (premium_code, user_id, datetime.now().isoformat()))
+    
+    conn.commit()
+    conn.close()
+    return True, "✅ Premium activated successfully!"
+
+def verify_premium_code_with_bot(premium_code):
+    """Verify premium code with payment bot API"""
+    try:
+        # Call payment bot API to verify code
+        response = requests.get(
+            f"{PAYMENT_BOT_URL}/verify_code/{premium_code}",
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('valid', False), data.get('user_id'), data.get('message', '')
+        return False, None, "❌ Verification service unavailable"
+    except:
+        return False, None, "❌ Could not verify code"
+
 def add_premium_user(user_id, duration_days=30):
-    """Add user to premium for specified days"""
+    """Add user to premium for specified days (backup method)"""
     premium_until = datetime.now() + timedelta(days=duration_days)
     conn = sqlite3.connect('premium_users.db')
     c = conn.cursor()
@@ -90,7 +145,8 @@ def send_message_with_buttons(chat_id, text, is_premium_user=False):
             [{"text": "🔍 Find Partner", "callback_data": "find"}],
             [{"text": "🛑 Stop Chat", "callback_data": "stop"}],
             [{"text": "💎 Get Premium", "callback_data": "get_premium"}],
-            [{"text": "📊 My Stats", "callback_data": "stats"}]
+            [{"text": "📊 My Stats", "callback_data": "stats"}],
+            [{"text": "🔑 Enter Code", "callback_data": "enter_code"}]
         ]
     
     keyboard = {"inline_keyboard": buttons}
@@ -114,9 +170,10 @@ def send_premium_instructions(chat_id):
 
 To unlock premium features:
 1. Go to @ChatteloSupportBot
-2. Send /pay command
-3. Follow payment instructions
-4. Get instant premium access!
+2. Send /buy_premium command
+3. Pay $10.99 via cryptocurrency
+4. Get your premium code instantly!
+5. Return here and enter your code
 
 ✨ *Premium Features:*
 • Send Photos 📸
@@ -124,13 +181,15 @@ To unlock premium features:
 • Receive Telegram Stars 💫
 • Priority Matching ⚡
 
-💰 *Only $4.99 for 30 days!*
+💰 *Only $10.99 for 30 days!*
+
+Click 'Enter Code' after payment!
     """
     send_message(chat_id, instructions)
 
 @app.route('/')
 def home():
-    return "🤖 Premium Bot with BUTTONS is RUNNING!"
+    return "🤖 Premium Bot with CODE VERIFICATION is RUNNING!"
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -155,6 +214,8 @@ def webhook():
             handle_premium_info(chat_id)
         elif button_data == 'send_stars' and user_is_premium:
             handle_send_stars(chat_id)
+        elif button_data == 'enter_code':
+            handle_enter_code(chat_id)
         
         # Tell Telegram we received the button click
         requests.post(f"{TELEGRAM_URL}/answerCallbackQuery", 
@@ -210,9 +271,17 @@ def webhook():
             handle_stop(chat_id)
         elif text == '/premium':
             send_premium_instructions(chat_id)
-        elif text.startswith('/pay'):
-            # Handle payment confirmation from @ChatteloSupportBot
-            handle_payment_confirmation(chat_id)
+        elif text.startswith('/activate'):
+            # Handle premium code activation
+            parts = text.split()
+            if len(parts) == 2:
+                premium_code = parts[1]
+                handle_premium_activation(chat_id, premium_code)
+            else:
+                send_message(chat_id, "❌ Usage: /activate YOUR_PREMIUM_CODE")
+        elif text.startswith('CHATTELO-'):
+            # Auto-detect premium code format
+            handle_premium_activation(chat_id, text)
         else:
             if chat_id in active_chats:
                 partner_id = active_chats[chat_id]
@@ -225,6 +294,41 @@ def webhook():
                 send_message(chat_id, "❌ Use /chat first or click 'Find Partner' button")
     
     return "OK"
+
+def handle_enter_code(chat_id):
+    """Prompt user to enter premium code"""
+    instructions = """
+🔑 *Enter Premium Code*
+
+Please enter your premium code that you received from @ChatteloSupportBot:
+
+You can either:
+1. Type: `/activate YOUR_CODE_HERE`
+2. Or just paste the code: `CHATTELO-XXXXX-XXX`
+
+Example: `/activate CHATTELO-ABC12-345`
+    """
+    send_message(chat_id, instructions)
+
+def handle_premium_activation(chat_id, premium_code):
+    """Activate premium using code from payment bot"""
+    # Clean the code
+    premium_code = premium_code.strip().upper()
+    
+    # Verify and activate premium
+    success, message = activate_premium_with_code(chat_id, premium_code)
+    
+    if success:
+        send_message(chat_id, f"🎉 {message}\n\n💎 You now have PREMIUM ACCESS for 30 days!")
+        send_message_with_buttons(chat_id, "💎 PREMIUM ACTIVATED! Unlocked photos & voice messages!", True)
+        
+        # Log the activation
+        print(f"✅ Premium activated for user {chat_id} with code: {premium_code}")
+    else:
+        send_message(chat_id, f"❌ {message}\n\nPlease check your code and try again.")
+        
+        # Offer help
+        send_message(chat_id, "💡 Need help? Contact @behar5057 or make sure you:\n1. Paid successfully\n2. Received code from @ChatteloSupportBot\n3. Entered code correctly")
 
 def handle_chat(chat_id):
     if chat_id in active_chats:
@@ -273,14 +377,16 @@ def handle_stats(chat_id, is_premium_user):
     c = conn.cursor()
     
     if is_premium_user:
-        c.execute("SELECT premium_until, stars_received FROM premium_users WHERE user_id = ?", (chat_id,))
+        c.execute("SELECT premium_until, stars_received, premium_code FROM premium_users WHERE user_id = ?", (chat_id,))
         result = c.fetchone()
         premium_until = datetime.fromisoformat(result[0])
         stars_received = result[1] or 0
+        premium_code = result[2]
         
         stats_text = f"""
 📊 *Your Premium Stats:*
 - Premium Status: ✅ ACTIVE
+- Premium Code: {premium_code}
 - Premium Until: {premium_until.strftime('%Y-%m-%d')}
 - Stars Received: {stars_received} ⭐
 - In chat: {'Yes' if chat_id in active_chats else 'No'}
@@ -303,16 +409,18 @@ def handle_stats(chat_id, is_premium_user):
 def handle_premium_info(chat_id):
     conn = sqlite3.connect('premium_users.db')
     c = conn.cursor()
-    c.execute("SELECT premium_until, stars_received FROM premium_users WHERE user_id = ?", (chat_id,))
+    c.execute("SELECT premium_until, stars_received, premium_code FROM premium_users WHERE user_id = ?", (chat_id,))
     result = c.fetchone()
     conn.close()
     
     if result:
         premium_until = datetime.fromisoformat(result[0])
         stars_received = result[1] or 0
+        premium_code = result[2]
         
         info_text = f"""
 💎 *Your Premium Information:*
+- Premium Code: {premium_code}
 - Premium Until: {premium_until.strftime('%Y-%m-%d %H:%M')}
 - Stars Earned: {stars_received} ⭐
 - Days Left: {(premium_until - datetime.now()).days}
@@ -345,13 +453,6 @@ Note: Both users need premium for star transactions.
     """
     send_message(chat_id, stars_info)
 
-def handle_payment_confirmation(chat_id):
-    """Handle payment confirmation from @ChatteloSupportBot"""
-    # In real implementation, verify payment with your payment bot
-    add_premium_user(chat_id, 30)  # 30 days premium
-    send_message(chat_id, "🎉 PAYMENT CONFIRMED! You now have PREMIUM ACCESS for 30 days! 💎")
-    send_message_with_buttons(chat_id, "💎 You're now PREMIUM! Unlocked photos & voice messages!", True)
-
 def send_photo(chat_id, file_id, caption=""):
     """Send photo to user"""
     payload = {
@@ -377,6 +478,30 @@ def send_voice(chat_id, file_id, caption=""):
         return True
     except:
         return False
+
+# API endpoint for payment bot to verify codes
+@app.route('/api/verify_code/<premium_code>', methods=['GET'])
+def verify_code_api(premium_code):
+    """API endpoint for payment bot to verify codes"""
+    conn = sqlite3.connect('premium_users.db')
+    c = conn.cursor()
+    
+    c.execute("SELECT user_id FROM used_codes WHERE code = ?", (premium_code,))
+    result = c.fetchone()
+    conn.close()
+    
+    if result:
+        return {
+            'valid': True,
+            'user_id': result[0],
+            'message': 'Code is valid and activated'
+        }
+    else:
+        return {
+            'valid': False,
+            'user_id': None,
+            'message': 'Code not found or not activated'
+        }
 
 # Initialize database on startup
 init_db()
