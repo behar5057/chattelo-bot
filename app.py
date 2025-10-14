@@ -64,6 +64,18 @@ def activate_premium_with_code(user_id, premium_code, duration_days=30):
         conn.close()
         return False, "❌ Invalid premium code format!"
     
+    # 🚨 CRITICAL FIX: Verify with payment bot API before activation
+    is_valid, verified_user_id, verification_message = verify_premium_code_with_bot(premium_code)
+    
+    if not is_valid:
+        conn.close()
+        return False, f"❌ Invalid premium code: {verification_message}"
+    
+    # Additional security: Ensure code belongs to this user
+    if verified_user_id and verified_user_id != user_id:
+        conn.close()
+        return False, "❌ This premium code was issued to another user!"
+    
     # Activate premium
     premium_until = datetime.now() + timedelta(days=duration_days)
     
@@ -94,7 +106,8 @@ def verify_premium_code_with_bot(premium_code):
             data = response.json()
             return data.get('valid', False), data.get('user_id'), data.get('message', '')
         return False, None, "❌ Verification service unavailable"
-    except:
+    except Exception as e:
+        print(f"❌ Verification API error: {e}")
         return False, None, "❌ Could not verify code"
 
 def add_premium_user(user_id, duration_days=30):
@@ -314,6 +327,9 @@ def handle_premium_activation(chat_id, premium_code):
     """Activate premium using code from payment bot"""
     # Clean the code
     premium_code = premium_code.strip().upper()
+    
+    # Send verification message
+    send_message(chat_id, "🔍 Verifying your premium code with payment system...")
     
     # Verify and activate premium
     success, message = activate_premium_with_code(chat_id, premium_code)
