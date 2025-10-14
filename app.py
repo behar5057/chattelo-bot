@@ -343,8 +343,8 @@ def handle_premium_activation(chat_id, premium_code):
     else:
         send_message(chat_id, f"❌ {message}\n\nPlease check your code and try again.")
         
-        # Offer help
-        send_message(chat_id, "💡 Need help? Contact @behar5057 or make sure you:\n1. Paid successfully\n2. Received code from @ChatteloSupportBot\n3. Entered code correctly")
+        # Offer help (removed personal contact info)
+        send_message(chat_id, "💡 Make sure you:\n1. Paid successfully in @ChatteloSupportBot\n2. Received a valid premium code\n3. Entered the code correctly")
 
 def handle_chat(chat_id):
     if chat_id in active_chats:
