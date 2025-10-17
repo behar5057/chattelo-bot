@@ -491,11 +491,11 @@
         <h1>Chattelo</h1>
         <p class="tagline">Chat with real people randomly - 100% Free</p>
 
-        <button class="btn btn-primary" onclick="startRandomChat()">
+        <button class="btn btn-primary" onclick="showComingSoon()">
             💬 START RANDOM CHAT
         </button>
 
-        <button class="btn btn-premium" onclick="showPremiumModal()">
+        <button class="btn btn-premium" onclick="showComingSoon()">
             🎥 PREMIUM VIDEO CHAT
             <div class="premium-badge">PRO</div>
         </button>
@@ -528,7 +528,7 @@
                 </div>
             </div>
             
-            <button class="btn btn-crypto" onclick="showPremiumModal()" style="margin-top: 15px;">
+            <button class="btn btn-crypto" onclick="showComingSoon()" style="margin-top: 15px;">
                 🤖 GET PREMIUM ACCESS
             </button>
         </div>
@@ -574,8 +574,8 @@
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="skipPerson()">⏩ Next Person</button>
-                <button class="control-btn" onclick="showPremiumModal()">💎 Get Premium</button>
+                <button class="control-btn" onclick="showComingSoon()">⏩ Next Person</button>
+                <button class="control-btn" onclick="showComingSoon()">💎 Get Premium</button>
             </div>
         </div>
     </div>
@@ -623,7 +623,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0; padding: 20px; font-size: 18px;" onclick="goToSupportBot()">
+            <button class="btn btn-crypto" style="width: 100%; margin: 10px 0; padding: 20px; font-size: 18px;" onclick="showComingSoon()">
                 🤖 OPEN CHATTELO SUPPORT BOT
             </button>
 
@@ -729,17 +729,17 @@
             if (type === 'sent') {
                 messageHTML += `
                     <div class="message-actions">
-                        <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
-                        <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
-                        <button class="message-action-btn" onclick="editMessage('${messageData.id}')">✏️</button>
+                        <button class="message-action-btn" onclick="showComingSoon()">😊</button>
+                        <button class="message-action-btn" onclick="showComingSoon()">↩️</button>
+                        <button class="message-action-btn" onclick="showComingSoon()">✏️</button>
                         <button class="message-action-btn" onclick="deleteMessage('${messageData.id}')">🗑️</button>
                     </div>
                 `;
             } else {
                 messageHTML += `
                     <div class="message-actions">
-                        <button class="message-action-btn" onclick="reactToMessage('${messageData.id}')">😊</button>
-                        <button class="message-action-btn" onclick="replyToMessage('${messageData.id}')">↩️</button>
+                        <button class="message-action-btn" onclick="showComingSoon()">😊</button>
+                        <button class="message-action-btn" onclick="showComingSoon()">↩️</button>
                     </div>
                 `;
             }
